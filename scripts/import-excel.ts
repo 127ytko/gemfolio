@@ -30,13 +30,12 @@ const EXCEL_PATH = path.join(__dirname, '../data/cardmaster-251225 - onepiece.xl
 
 async function importExcel() {
     console.log('🚀 Starting Excel Import...');
+    console.log('⚠️  This script uses UPSERT - existing price history and portfolios are PRESERVED');
 
-    // 1. Clear existing data
-    console.log('Cleaning up existing data...');
-    await supabase.from('portfolios').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('market_prices_raw').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('market_prices_psa10').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('cards').delete().neq('card_id', '00000000-0000-0000-0000-000000000000');
+    // NOTE: We no longer delete existing data to preserve:
+    // - User portfolios
+    // - Price history (market_prices_raw, market_prices_psa10)
+    // - Scraping results
 
     // 2. Read Excel
     console.log(`Reading Excel: ${EXCEL_PATH}`);

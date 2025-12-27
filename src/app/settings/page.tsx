@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Globe, Bell, Shield, User, LogOut, Crown, Zap, Download } from 'lucide-react';
+import { Settings, Globe, Bell, Shield, User, LogOut, Crown, Zap, Download, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
@@ -31,6 +31,8 @@ export default function SettingsPage() {
     const [displayName, setDisplayName] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Check login provider
     const isEmailProvider = user?.app_metadata?.provider === 'email';
@@ -148,6 +150,13 @@ export default function SettingsPage() {
         emailConfirm: language === 'ja' ? '新しいメールアドレスを確認してください' : 'Please check your email to confirm',
         emailChangeDesc: language === 'ja' ? '変更すると確認メールが送信されます' : 'A confirmation email will be sent',
         googleAccount: language === 'ja' ? 'Googleアカウントで管理されています' : 'Managed by Google Account',
+        deleteAccount: language === 'ja' ? 'アカウントを削除' : 'Delete Account',
+        deleteAccountDesc: language === 'ja' ? 'アカウントと全てのデータを完全に削除します' : 'Permanently delete your account and all data',
+        deleteConfirmTitle: language === 'ja' ? '本当に削除しますか？' : 'Are you sure?',
+        deleteConfirmDesc: language === 'ja' ? 'この操作は取り消せません。アカウント、ポートフォリオ、お気に入り等のすべてのデータが完全に削除されます。' : 'This action cannot be undone. Your account, portfolio, favorites and all data will be permanently deleted.',
+        deleteConfirmButton: language === 'ja' ? '削除する' : 'Delete',
+        cancel: language === 'ja' ? 'キャンセル' : 'Cancel',
+        deleting: language === 'ja' ? '削除中...' : 'Deleting...',
     };
 
     const handleUpdateProfile = async () => {
@@ -187,6 +196,43 @@ export default function SettingsPage() {
             setUpdateMessage({ type: 'error', text: t.errorUpdate });
         } finally {
             setIsUpdating(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            const supabase = getSupabaseClient();
+
+            // Get current session for authorization
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                throw new Error('No session found');
+            }
+
+            // Call Edge Function to delete account
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/delete-user`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete account');
+            }
+
+            // Redirect to home after successful deletion
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            setIsDeleting(false);
         }
     };
 
@@ -443,6 +489,55 @@ export default function SettingsPage() {
             <div className="mt-8 text-center">
                 <p className="text-xs text-slate-600">© 2025 GemFolio. All Rights Reserved.</p>
             </div>
+
+            {/* Delete Account Section - Only show for logged in users */}
+            {user && (
+                <div className="mt-8 pt-8 border-t border-slate-800">
+                    <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 bg-red-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Trash2 size={20} className="text-red-400" />
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-sm font-semibold text-red-400">{t.deleteAccount}</h2>
+                                <p className="text-xs text-slate-500 mt-1">{t.deleteAccountDesc}</p>
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition-colors"
+                                >
+                                    {t.deleteAccount}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+                    <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-sm mx-4">
+                        <h3 className="text-lg font-bold text-white mb-2">{t.deleteConfirmTitle}</h3>
+                        <p className="text-sm text-slate-400 mb-6">{t.deleteConfirmDesc}</p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg transition-colors"
+                                disabled={isDeleting}
+                            >
+                                {t.cancel}
+                            </button>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? t.deleting : t.deleteConfirmButton}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

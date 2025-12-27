@@ -126,17 +126,8 @@ async function importFromExcel() {
 
     console.log(`📊 Found ${records.length} cards in Excel\n`);
 
-    // Clear existing cards first
-    console.log('🗑️  Clearing existing cards...');
-    const { error: deleteError } = await supabase
-        .from('cards')
-        .delete()
-        .neq('card_id', '00000000-0000-0000-0000-000000000000'); // Delete all
-
-    if (deleteError) {
-        console.log(`  ⚠️ Delete warning: ${deleteError.message}`);
-    }
-    console.log('  ✅ Existing cards cleared\n');
+    // NOTE: We no longer delete existing data to preserve price history and portfolios
+    // Cards will be upserted (updated if exists, inserted if new)
 
     let successCount = 0;
     let errorCount = 0;
