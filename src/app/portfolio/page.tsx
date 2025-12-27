@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Layers, Plus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -34,6 +34,25 @@ interface HoldingItem {
 }
 
 export default function VaultPage() {
+    return (
+        <Suspense fallback={<VaultPageLoading />}>
+            <VaultPageContent />
+        </Suspense>
+    );
+}
+
+function VaultPageLoading() {
+    return (
+        <div className="px-4 py-6 max-w-7xl mx-auto">
+            <div className="py-16 text-center">
+                <Loader2 size={40} className="text-amber-400 mx-auto mb-4 animate-spin" />
+                <p className="text-sm text-slate-400">Loading...</p>
+            </div>
+        </div>
+    );
+}
+
+function VaultPageContent() {
     const { t } = useLanguage();
     const { user, loading: authLoading } = useAuth();
     const searchParams = useSearchParams();
