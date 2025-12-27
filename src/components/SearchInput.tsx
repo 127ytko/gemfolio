@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SearchInputProps {
     onSearch?: (query: string) => void;
@@ -11,6 +12,7 @@ interface SearchInputProps {
 export function SearchInput({ onSearch }: SearchInputProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { language } = useLanguage();
     const initialQuery = searchParams.get('q') || '';
     const [query, setQuery] = useState(initialQuery);
 
@@ -53,7 +55,7 @@ export function SearchInput({ onSearch }: SearchInputProps) {
                 type="text"
                 value={query}
                 onChange={(e) => handleChange(e.target.value)}
-                placeholder="Search cards, sets, or characters..."
+                placeholder={language === 'ja' ? 'カードを検索' : 'Search cards, sets, or characters...'}
                 className="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             {query && (

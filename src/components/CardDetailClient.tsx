@@ -140,8 +140,8 @@ export function CardDetailClient({
                 </a>
                 <p className="text-[10px] text-slate-500 text-center mt-2">
                     {language === 'ja'
-                        ? '新しいタブで開きます。購入時にコミッションが発生する場合があります。'
-                        : 'Opens in a new tab. We may earn a commission from purchases.'}
+                        ? '新しいタブで開きます。購入によりGemFolioが報酬を受け取る場合があります。'
+                        : 'Opens in a new tab. GemFolio may be compensated if you make a purchase.'}
                 </p>
             </div>
         </div>

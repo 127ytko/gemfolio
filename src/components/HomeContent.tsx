@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Megaphone, Loader2 } from 'lucide-react';
 import { TopPerformers } from '@/components/TopPerformers';
 import { HomeSearchInput } from '@/components/HomeSearchInput';
+import { Clock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { getPortfolio } from '@/lib/api/portfolio';
@@ -87,8 +88,8 @@ export function HomeContent() {
             ? '日本市場とeBayの価格を比較。ワンピースカードのベストディールを見つけよう。'
             : 'Compare Japan market vs eBay prices. Find the best deals on One Piece cards.',
         latestNews: language === 'ja' ? '日本からの最新ニュース' : 'Latest News from Japan',
-        newsDesc: language === 'ja' ? '日本市場の新商品リリース情報' : 'Product release information in Japan market',
-        comingSoon: language === 'ja' ? '準備中...' : 'Coming soon...',
+        newsDesc: language === 'ja' ? '日本語版の新商品リリース情報' : 'Product release information in Japan market',
+        comingSoon: language === 'ja' ? '準備中' : 'Coming soon',
         noCards: language === 'ja'
             ? '表示できるカードがありません。カードを検索してみましょう！'
             : 'No cards available. Try searching for cards!',
@@ -147,7 +148,10 @@ export function HomeContent() {
                 </div>
                 {/* Announcement content placeholder */}
                 <div className="py-8 text-center border border-dashed border-slate-700 rounded-xl">
-                    <p className="text-sm text-slate-500">{t.comingSoon}</p>
+                    <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
+                        <Clock size={16} />
+                        {t.comingSoon}
+                    </p>
                 </div>
             </section>
 

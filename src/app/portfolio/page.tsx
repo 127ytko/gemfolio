@@ -53,7 +53,7 @@ function VaultPageLoading() {
 }
 
 function VaultPageContent() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { user, loading: authLoading } = useAuth();
     const searchParams = useSearchParams();
     const editCardId = searchParams.get('edit');
@@ -157,19 +157,21 @@ function VaultPageContent() {
                     </h1>
                 </section>
 
-                <div className="py-16 text-center border border-dashed border-slate-700 rounded-xl">
-                    <Layers size={40} className="text-slate-600 mx-auto mb-4" />
-                    <h2 className="text-lg font-semibold text-white mb-2">
-                        {t('portfolio.loginRequired') || 'Login Required'}
+                <div className="py-12 text-center border border-dashed border-slate-700 rounded-xl bg-slate-900/30">
+                    <Layers size={48} className="text-amber-400 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-white mb-3">
+                        {language === 'ja' ? 'ポートフォリオを始めよう' : 'Start Your Portfolio'}
                     </h2>
-                    <p className="text-sm text-slate-400 mb-6 max-w-xs mx-auto">
-                        {t('portfolio.loginToView') || 'Please login to view your portfolio'}
+                    <p className="text-sm text-slate-400 mb-6 max-w-sm mx-auto px-4">
+                        {language === 'ja'
+                            ? '無料会員登録で、保有カードの価格変動をリアルタイムでトラッキングできます。'
+                            : 'Sign up for free to track your card collection value in real-time.'}
                     </p>
                     <Link
                         href="/auth"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-lg transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-lg transition-colors"
                     >
-                        {t('auth.login') || 'Login'}
+                        {language === 'ja' ? '無料で始める' : 'Get Started Free'}
                     </Link>
                 </div>
             </div>

@@ -8,7 +8,7 @@ export default function RankingPage() {
 
     const t = {
         title: language === 'ja' ? 'ランキング' : 'Ranking',
-        comingSoon: language === 'ja' ? 'Coming Soon' : 'Coming Soon',
+        comingSoon: language === 'ja' ? '準備中' : 'Coming Soon',
         description: language === 'ja'
             ? 'ランキング機能は現在開発中です。\n価格上昇率やお気に入り順などのランキング表示で、コレクション管理や売買に役立つ機能を準備しています。'
             : 'Ranking feature is currently under development.\nWe are preparing useful features for collection management and trading, such as price increase rates and favorites ranking.',

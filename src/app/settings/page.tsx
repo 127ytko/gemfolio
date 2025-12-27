@@ -1,11 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Globe, Bell, Shield, User, LogOut, Crown, Zap } from 'lucide-react';
+import { Settings, Globe, Bell, Shield, User, LogOut, Crown, Zap, Download } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { getSupabaseClient } from '@/lib/supabase/client';
+
+// PWA Install Prompt interface
+interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 export default function SettingsPage() {
     const { language, setLanguage } = useLanguage();
@@ -13,6 +19,11 @@ export default function SettingsPage() {
     const { tier, isPremium } = useSubscription();
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+    // PWA Install State
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [isInstallable, setIsInstallable] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
 
     // Profile Update State
     const [isUpdating, setIsUpdating] = useState(false);
@@ -43,6 +54,43 @@ export default function SettingsPage() {
             }
         }
     }, []);
+
+    // PWA Install Event Listener
+    useEffect(() => {
+        // Check if iOS
+        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        setIsIOS(isIOSDevice);
+
+        // Listen for beforeinstallprompt event (Android/Desktop)
+        const handleBeforeInstallPrompt = (e: Event) => {
+            e.preventDefault();
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
+            setIsInstallable(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setIsInstallable(false);
+        }
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            setIsInstallable(false);
+        }
+        setDeferredPrompt(null);
+    };
 
     const handleNotificationToggle = async () => {
         if (!('Notification' in window)) {
@@ -309,35 +357,62 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Notifications Setting */}
+                {/* Add to Home Screen */}
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col gap-3">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Bell size={20} className="text-amber-400" />
+                                <Download size={20} className="text-amber-400" />
                             </div>
                             <div>
-                                <h2 className="text-sm font-semibold text-white">{t.notifications}</h2>
+                                <h2 className="text-sm font-semibold text-white">
+                                    {language === 'ja' ? 'アプリをインストール' : 'Install App'}
+                                </h2>
                                 <p className="text-xs text-slate-500">
-                                    {notificationPermission === 'denied'
-                                        ? t.notificationsBlocked
-                                        : t.notificationsDesc}
+                                    {language === 'ja'
+                                        ? 'ホーム画面に追加してアプリとして使用'
+                                        : 'Add to home screen for app-like experience'}
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleNotificationToggle}
-                            disabled={notificationPermission === 'denied'}
-                            className={`relative w-12 h-6 rounded-full transition-colors self-end sm:self-auto flex-shrink-0 ${notificationsEnabled
-                                ? 'bg-amber-500'
-                                : 'bg-slate-700'
-                                } ${notificationPermission === 'denied' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <div
-                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${notificationsEnabled ? 'translate-x-6' : 'translate-x-0.5'
-                                    }`}
-                            />
-                        </button>
+
+                        {/* Android/PC: Show install button if available */}
+                        {isInstallable && (
+                            <button
+                                onClick={handleInstallClick}
+                                className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Download size={18} />
+                                {language === 'ja' ? 'アプリをインストール' : 'Install App'}
+                            </button>
+                        )}
+
+                        {/* iOS: Show instructions */}
+                        {isIOS && !isInstallable && (
+                            <div className="bg-slate-800/50 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-2">
+                                    {language === 'ja'
+                                        ? 'iPhoneでインストールするには：'
+                                        : 'To install on iPhone:'}
+                                </p>
+                                <div className="text-[10px] text-slate-500 space-y-1">
+                                    <p>1. {language === 'ja' ? '画面下の共有ボタン（□↑）をタップ' : 'Tap the Share button (□↑) at the bottom'}</p>
+                                    <p>2. {language === 'ja' ? '「ホーム画面に追加」を選択' : 'Select "Add to Home Screen"'}</p>
+                                    <p>3. {language === 'ja' ? '「追加」をタップ' : 'Tap "Add"'}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Already installed or not installable */}
+                        {!isInstallable && !isIOS && (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                                <p className="text-xs text-green-400">
+                                    {language === 'ja'
+                                        ? '✓ アプリとしてインストール済み、または対応ブラウザでアクセスしてください'
+                                        : '✓ Already installed as app, or access from a supported browser'}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

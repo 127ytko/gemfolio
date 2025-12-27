@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   },
   description: "Track One Piece Card Game prices. Compare Japan market vs eBay prices for Manga Rare, Alt Art, and more. Find the best arbitrage opportunities.",
   keywords: ["One Piece Card Game", "OPCG", "card prices", "Manga Rare", "eBay", "arbitrage", "price tracker"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "GemFolio",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
