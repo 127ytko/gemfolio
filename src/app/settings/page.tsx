@@ -194,6 +194,12 @@ export default function SettingsPage() {
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
+                                onFocus={(e) => {
+                                    // Prevent auto-scroll on mobile
+                                    setTimeout(() => {
+                                        e.target.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+                                    }, 100);
+                                }}
                                 placeholder={language === 'ja' ? '名前を入力' : 'Enter your name'}
                                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
                             />
