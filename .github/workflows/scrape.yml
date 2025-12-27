@@ -1,0 +1,28 @@
+name: Daily Price Scrape
+
+on:
+  schedule:
+    - cron: '0 16 */3 * *' # UTC 16:00 (JST 01:00) every 3 days
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Scraper
+        run: npx ts-node scripts/scrape-prices-v3.ts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

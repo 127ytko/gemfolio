@@ -1,0 +1,219 @@
+﻿[dotenv@17.2.3] injecting env (3) from .env.local -- tip: 柏 encrypt with Dotenvx: https://dotenvx.com
+塘 CSV File: C:\Users\akaga\OneDrive\繝・せ繧ｯ繝医ャ繝予gemfolio-web\data\cardmaster-251225 - onepiece.csv
+名・・ Images Folder: C:\Users\akaga\OneDrive\繝・せ繧ｯ繝医ャ繝予gemfolio-web\data\images
+
+噫 Starting card import...
+
+node.exe : (node:13520) [MOD
+ULE_TYPELESS_PACKAGE_JSON] W
+arning: Module type of file:
+///C:/Users/akaga/OneDrive/%
+E3%83%87%E3%82%B9%E3%82%AF%E
+3%83%88%E3%83%83%E3%83%97/ge
+mfolio-web/scripts/import-ca
+rds.ts is not specified and 
+it doesn't parse as CommonJS
+.
+発生場所 行:1 文字:1
++ & "C:\Program Files\nodejs
+/node.exe" "C:\Program Files
+\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ((node  
+  :13520) [M...se as Comm   
+ onJS.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+Reparsing as ES module becau
+se module syntax was detecte
+d. This incurs a performance
+ overhead.
+To eliminate this warning, a
+dd "type": "module" to C:\Us
+ers\akaga\OneDrive\繝・せ繧ｯ繝医ャ繝
+予gemfolio-web\package.json.
+(Use `node --trace-warnings 
+...` to show where the warni
+ng was created)
+塘 Found 34 cards in CSV
+
+Processing: OP01-120 - Shanks
+笨・Uploaded: OP01-120-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP01-
+120-00"
+Processing: OP02-013 - Portgas D. Ace
+笨・Uploaded: OP02-013-00.png
+Processing: OP03-122 - Sogeking
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP02-
+013-00"
+笨・Uploaded: OP03-122-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP03-
+122-00"
+Processing: OP04-083 - 隰逡･縺ｮ邇句嵜 [OP-04]
+笨・Uploaded: OP04-083-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP04-
+083-00"
+Processing: OP05-119 - Monkey D. Luffy
+笨・Uploaded: OP05-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP05-
+119-00"
+Processing: OP05-069 - Trafalgar Law
+笨・Uploaded: OP05-069-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP05-
+069-00"
+Processing: OP05-074 - Eustass Kid
+笨・Uploaded: OP05-074-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP05-
+074-00"
+Processing: OP06-118 - Roronoa Zoro
+笨・Uploaded: OP06-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP06-
+118-00"
+Processing: EB01-006 - Tony Tony Chopper
+笨・Uploaded: EB01-006-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "EB01-
+006-00"
+Processing: OP07-051 - Boa Hancock
+笨・Uploaded: OP07-051-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP07-
+051-00"
+Processing: OP08-118 - Silvers Rayleigh
+笨・Uploaded: OP08-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP08-
+118-00"
+Processing: OP01-016 - Nami
+笨・Uploaded: OP01-016-00.png
+Processing: OP01-120 - Shanks
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP01-
+016-00"
+笨・Uploaded: OP01-120-prb01.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP01-
+120-prb01"
+Processing: OP02-013 - Portgas D. Ace
+笨・Uploaded: OP02-013-prb01.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP02-
+013-prb01"
+Processing: OP03-122 - Sogeking
+笨・Uploaded: OP03-122-prb01.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP03-
+122-prb01"
+Processing: OP04-083 - 繝励Ξ繝溘い繝繝厄ｿｽE繧ｹ繧ｿ繝ｼ THE BEST [PRB-01]
+  笞・・No image found for OP04-083-prb01
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP04-
+083-prb01"
+Processing: OP09-118 - Gol D. Roger
+笨・Uploaded: OP09-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP09-
+118-00"
+Processing: OP09-004 - Shanks
+笨・Uploaded: OP09-004-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP09-
+004-00"
+Processing: OP09-051 - Buggy
+笨・Uploaded: OP09-051-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP09-
+051-00"
+Processing: OP09-093 - 譁ｰ縺溘↑繧狗嚊蟶・[OP-09]
+笨・Uploaded: OP09-093-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP09-
+093-00"
+Processing: OP09-119 - Monkey D. Luffy
+笨・Uploaded: OP09-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP09-
+119-00"
+Processing: OP10-119 - Trafalgar Law
+笨・Uploaded: OP10-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP10-
+119-00"
+Processing: OP11-118 - Monkey D. Luffy
+笨・Uploaded: OP11-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP11-
+118-00"
+Processing: OP12-118 - Jewelry Bonney
+笨・Uploaded: OP12-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP12-
+118-00"
+Processing: OP13-118 - Monkey D. Luffy
+笨・Uploaded: OP13-118-red.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+118-red"
+Processing: OP13-119 - Portgas D. Ace
+笨・Uploaded: OP13-119-red.png
+Processing: OP13-120 - 蜿励￠邯吶′繧後ｋ諢乗・[OP-13]
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+119-red"
+笨・Uploaded: OP13-120-red.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+120-red"
+Processing: OP13-118 - Monkey D. Luffy
+笨・Uploaded: OP13-118-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+118-00"
+Processing: OP13-119 - Portgas D. Ace
+笨・Uploaded: OP13-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+119-00"
+Processing: OP13-120 - 蜿励￠邯吶′繧後ｋ諢乗・[OP-13]
+笨・Uploaded: OP13-120-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP13-
+120-00"
+Processing: EB02-061 - Monkey D. Luffy
+  笞・・No image found for EB-02-061-00
+  笶・DB Error: invalid input 
+syntax for type uuid: "EB-02
+-061-00"
+Processing: EB03-061 - Uta
+  笞・・No image found for EB-03-061-00
+  笶・DB Error: invalid input 
+syntax for type uuid: "EB-03
+-061-00"
+Processing: OP06-119 - Sanji
+笨・Uploaded: OP06-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP06-
+119-00"
+Processing: OP14-119 - Dracule Mihawk
+笨・Uploaded: OP14-119-00.png
+  笶・DB Error: invalid input 
+syntax for type uuid: "OP14-
+119-00"
+
+========================================
+笨・Success: 0 cards
+笶・Errors: 34 cards
+========================================
