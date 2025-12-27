@@ -99,9 +99,9 @@ export function CardDetailClient({
                     {t('card.imageReference')}
                 </p>
                 <p className="text-[8px] text-slate-600 text-center mt-1 leading-tight">
-                    ©尾田栄一郎／集英社 ©尾田栄一郎／集英社・フジテレビ・東映アニメーション
-                    <br />
-                    ©Eiichiro Oda/Shueisha ©Eiichiro Oda/Shueisha, Toei Animation
+                    {language === 'ja'
+                        ? '©尾田栄一郎／集英社 ©尾田栄一郎／集英社・フジテレビ・東映アニメーション'
+                        : '©Eiichiro Oda/Shueisha ©Eiichiro Oda/Shueisha, Toei Animation'}
                 </p>
             </div>
 
