@@ -26,7 +26,7 @@ export default function RankingPage() {
             </section>
 
             {/* Coming Soon Content */}
-            <div className="flex flex-col items-center justify-center py-10">
+            <div className="flex flex-col items-center justify-center py-6">
                 <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center mb-6">
                     <Clock size={40} className="text-amber-400" />
                 </div>
