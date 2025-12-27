@@ -130,7 +130,7 @@ export function CardDetailClient({
             {/* eBay CTA */}
             <div className="px-4 pb-8">
                 <a
-                    href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.name_en || ''))}`}
+                    href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.name_en || '') + ' ' + (card.rarity_en || '') + ' Japanese')}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-colors active:scale-[0.98]"
