@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { EXCHANGE_RATE } from '@/lib/constants';
 
 interface TopPerformerCard {
@@ -25,10 +26,11 @@ interface TopPerformersProps {
 
 export function TopPerformers({ cards }: TopPerformersProps) {
     const { language } = useLanguage();
+    const { user } = useAuth();
 
     const t = {
-        title: language === 'ja' ? 'TOP10 パフォーマー' : 'TOP10 Performers',
-        desc: language === 'ja' ? '今週最も価格が上昇したカード' : 'Your collections with the highest price increase',
+        title: language === 'ja' ? '値上がり率トップ10' : 'TOP10 Performers',
+        desc: language === 'ja' ? 'コレクションの中で今週最も値上がりしたカード' : 'Your collections with the highest price increase',
         viewRanking: language === 'ja' ? 'ランキングを見る' : 'View Market Ranking',
     };
 
@@ -59,15 +61,21 @@ export function TopPerformers({ cards }: TopPerformersProps) {
             ) : (
                 <div className="py-8 text-center border border-dashed border-slate-700 rounded-xl bg-slate-900/50">
                     <p className="text-sm text-slate-400 mb-4 px-4">
-                        {language === 'ja'
-                            ? 'ポートフォリオにカードが登録されていません。カードを登録してパフォーマンスを確認しましょう！'
-                            : 'No cards in your portfolio. Add cards to track their performance!'}
+                        {user
+                            ? (language === 'ja'
+                                ? 'ポートフォリオにカードが登録されていません。保有カードを登録して値動きを確認しましょう！'
+                                : 'No cards in your portfolio. Add cards to track their performance!')
+                            : (language === 'ja'
+                                ? 'ポートフォリオにカードが登録されていません。無料会員登録で保有カードの値動きを確認しましょう！'
+                                : 'No cards in your portfolio. Sign up for free to track your card values!')}
                     </p>
                     <Link
-                        href="/search"
+                        href={user ? '/search' : '/auth'}
                         className="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-lg transition-colors"
                     >
-                        {language === 'ja' ? 'カードを登録する' : 'Add Cards'}
+                        {user
+                            ? (language === 'ja' ? 'カードを登録する' : 'Add Cards')
+                            : (language === 'ja' ? '会員登録する（無料）' : 'Sign Up Free')}
                     </Link>
                 </div>
             )}
