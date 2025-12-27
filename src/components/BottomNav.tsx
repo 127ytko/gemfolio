@@ -9,23 +9,26 @@ import {
     Layers,
     Settings
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface NavItem {
     href: string;
-    label: string;
+    labelEn: string;
+    labelJa: string;
     icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-    { href: '/', label: 'Top', icon: <Home size={22} /> },
-    { href: '/search', label: 'Search', icon: <Search size={22} /> },
-    { href: '/ranking', label: 'Ranking', icon: <TrendingUp size={22} /> },
-    { href: '/portfolio', label: 'Portfolio', icon: <Layers size={22} /> },
-    { href: '/settings', label: 'Settings', icon: <Settings size={22} /> },
+    { href: '/', labelEn: 'Top', labelJa: 'トップ', icon: <Home size={22} /> },
+    { href: '/search', labelEn: 'Search', labelJa: '検索', icon: <Search size={22} /> },
+    { href: '/ranking', labelEn: 'Ranking', labelJa: 'ランキング', icon: <TrendingUp size={22} /> },
+    { href: '/portfolio', labelEn: 'Portfolio', labelJa: '資産管理', icon: <Layers size={22} /> },
+    { href: '/settings', labelEn: 'Settings', labelJa: '設定', icon: <Settings size={22} /> },
 ];
 
 export function BottomNav() {
     const pathname = usePathname();
+    const { language } = useLanguage();
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur-sm border-t border-slate-800 safe-area-pb">
@@ -45,7 +48,7 @@ export function BottomNav() {
                         >
                             {item.icon}
                             <span className="text-[10px] font-medium">
-                                {item.label}
+                                {language === 'ja' ? item.labelJa : item.labelEn}
                             </span>
                         </Link>
                     );

@@ -56,7 +56,7 @@ export function SearchInput({ onSearch }: SearchInputProps) {
                 value={query}
                 onChange={(e) => handleChange(e.target.value)}
                 placeholder={language === 'ja' ? 'カードを検索' : 'Search cards, sets, or characters...'}
-                className="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+                className="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             {query && (
                 <button
