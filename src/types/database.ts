@@ -330,3 +330,14 @@ export interface TopPerformer {
     price_change_weekly: number;
     condition: 'RAW' | 'PSA10';
 }
+
+// =============================================================================
+// User Profiles Table - ユーザープロファイル
+// =============================================================================
+export interface UserProfile {
+    id: string;
+    user_id: string;
+    display_name: string | null;
+    created_at: string;
+    updated_at: string;
+}

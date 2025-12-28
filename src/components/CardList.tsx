@@ -59,7 +59,7 @@ function CardListItem({ card }: { card: Card }) {
             <div className="flex-1 min-w-0 py-0.5">
                 {/* Row 1: Name + Like Button */}
                 <div className="flex items-start justify-between gap-1">
-                    <h3 className="text-xs font-semibold text-white line-clamp-1">
+                    <h3 className="text-sm font-semibold text-white line-clamp-1">
                         {cardName}
                     </h3>
                     <button className="flex-shrink-0 text-slate-500 hover:text-red-400 transition-colors text-sm">

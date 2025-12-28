@@ -142,7 +142,7 @@ export function HomeContent() {
                         <Megaphone size={20} className="text-amber-400 md:w-6 md:h-6" />
                         {t.latestNews}
                     </h2>
-                    <p className="text-xs md:text-sm text-slate-500 mt-1">
+                    <p className="text-sm md:text-base text-slate-500 mt-1">
                         {t.newsDesc}
                     </p>
                 </div>

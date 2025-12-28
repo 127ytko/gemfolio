@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { getUserProfile, updateDisplayName } from '@/lib/api/userProfile';
 
 // PWA Install Prompt interface
 interface BeforeInstallPromptEvent extends Event {
@@ -38,12 +39,20 @@ export default function SettingsPage() {
     const isEmailProvider = user?.app_metadata?.provider === 'email';
 
     useEffect(() => {
-        if (user?.user_metadata?.full_name) {
-            setDisplayName(user.user_metadata.full_name);
-        }
-        if (user?.email) {
-            setNewEmail(user.email);
-        }
+        const loadProfile = async () => {
+            if (user?.id) {
+                const profile = await getUserProfile(user.id);
+                if (profile?.display_name) {
+                    setDisplayName(profile.display_name);
+                } else if (user?.user_metadata?.full_name) {
+                    setDisplayName(user.user_metadata.full_name);
+                }
+            }
+            if (user?.email) {
+                setNewEmail(user.email);
+            }
+        };
+        loadProfile();
     }, [user]);
 
     useEffect(() => {
@@ -164,32 +173,42 @@ export default function SettingsPage() {
         setUpdateMessage(null);
         try {
             const supabase = getSupabaseClient();
-            const updates: { data?: { full_name: string }; email?: string; password?: string } = {};
+            let hasUpdates = false;
 
-            if (displayName !== user?.user_metadata?.full_name) {
-                updates.data = { full_name: displayName };
+            // Update display name in user_profiles table (persists after Google re-login)
+            if (user?.id && displayName) {
+                const success = await updateDisplayName(user.id, displayName);
+                if (success) {
+                    hasUpdates = true;
+                }
             }
 
             // Allow email/password change only for email provider
             if (isEmailProvider) {
+                const authUpdates: { email?: string; password?: string } = {};
                 if (newEmail !== user?.email) {
-                    updates.email = newEmail;
+                    authUpdates.email = newEmail;
                 }
                 if (newPassword) {
-                    updates.password = newPassword;
+                    authUpdates.password = newPassword;
+                }
+
+                if (Object.keys(authUpdates).length > 0) {
+                    const { error } = await supabase.auth.updateUser(authUpdates);
+                    if (error) throw error;
+                    hasUpdates = true;
+
+                    if (authUpdates.email) {
+                        setUpdateMessage({ type: 'success', text: t.emailConfirm });
+                        setNewPassword('');
+                        return;
+                    }
                 }
             }
 
-            if (Object.keys(updates).length > 0) {
-                const { error } = await supabase.auth.updateUser(updates);
-                if (error) throw error;
-
-                if (updates.email) {
-                    setUpdateMessage({ type: 'success', text: t.emailConfirm });
-                } else {
-                    setUpdateMessage({ type: 'success', text: t.successUpdate });
-                }
-                setNewPassword(''); // Clear password field
+            if (hasUpdates) {
+                setUpdateMessage({ type: 'success', text: t.successUpdate });
+                setNewPassword('');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
