@@ -247,11 +247,20 @@ export default function SettingsPage() {
                 throw new Error(errorData.error || 'Failed to delete account');
             }
 
-            // Sign out locally to clear session immediately
-            await supabase.auth.signOut();
+            // Force clear local storage items related to Supabase
+            // This handles cases where signOut might not clear everything immediately
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+                    localStorage.removeItem(key);
+                }
+            }
 
-            // Redirect to home after successful deletion
-            window.location.replace('/');
+            // Use AuthContext signOut to update state and clear session
+            await signOut();
+
+            // Force hard reload to home to ensure clean state
+            window.location.href = '/';
         } catch (error) {
             console.error('Error deleting account:', error);
             setIsDeleting(false);
