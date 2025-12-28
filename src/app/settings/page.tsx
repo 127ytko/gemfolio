@@ -247,8 +247,11 @@ export default function SettingsPage() {
                 throw new Error(errorData.error || 'Failed to delete account');
             }
 
+            // Sign out locally to clear session immediately
+            await supabase.auth.signOut();
+
             // Redirect to home after successful deletion
-            window.location.href = '/';
+            window.location.replace('/');
         } catch (error) {
             console.error('Error deleting account:', error);
             setIsDeleting(false);
