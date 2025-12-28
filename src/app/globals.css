@@ -12,6 +12,11 @@
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
   --font-sans: var(--font-inter), var(--font-noto-sans-jp), system-ui, sans-serif;
+
+  /* Override slate colors for better visibility */
+  --color-slate-400: #a1a1aa;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #71717a;
 }
 
 html {
@@ -36,6 +41,7 @@ select {
 }
 
 @media (min-width: 640px) {
+
   input,
   textarea,
   select {
