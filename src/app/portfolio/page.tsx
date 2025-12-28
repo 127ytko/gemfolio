@@ -227,10 +227,9 @@ function VaultPageContent() {
                             <h2 className="text-sm font-semibold text-slate-400">{language === 'ja' ? '保有カード' : 'Collections'}</h2>
                             <Link
                                 href="/search"
-                                className="flex items-center gap-1 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-amber-400 hover:border-amber-500/50 transition-colors"
+                                className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg text-slate-900 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all"
                             >
-                                <Plus size={14} />
-                                {t('common.add')}
+                                <Plus size={18} strokeWidth={2.5} />
                             </Link>
                         </div>
 
