@@ -332,12 +332,38 @@ export interface TopPerformer {
 }
 
 // =============================================================================
-// User Profiles Table - ユーザープロファイル
+// User Profiles Table - ユーザープロファイル (統合版)
 // =============================================================================
 export interface UserProfile {
     id: string;
-    user_id: string;
     display_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+    currency_preference: string;
+    language_preference: string;
+    email_notifications: boolean;
     created_at: string;
     updated_at: string;
+}
+
+// =============================================================================
+// Portfolio Value History - ポートフォリオ評価額履歴
+// =============================================================================
+export interface PortfolioValueHistory {
+    id: string;
+    user_id: string;
+    total_value: number;
+    total_cost: number;
+    total_items: number;
+    total_quantity: number;
+    recorded_date: string;
+    recorded_at: string;
+}
+
+export interface PortfolioHistoryPoint {
+    recorded_date: string;
+    total_value: number;
+    total_cost: number;
+    daily_change: number;
+    daily_change_percent: number;
 }
