@@ -13,7 +13,7 @@ export function SearchResultsHeader({ count, query }: SearchResultsHeaderProps) 
 
     return (
         <span className="text-sm text-slate-400">
-            <span className="text-base font-bold text-white">{count}</span>{' '}
+            <span className="text-2xl font-black text-white">{count}</span>{' '}
             {query
                 ? t('search.resultsFor', { count: '', query }).replace(/^\d*\s*/, '')
                 : t('search.results', { count: '' }).replace(/^\d*\s*/, '')

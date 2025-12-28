@@ -6,6 +6,8 @@ export interface PortfolioHistoryPoint {
     total_cost: number;
     daily_change: number;
     daily_change_percent: number;
+    total_items: number;
+    total_quantity: number;
 }
 
 /**

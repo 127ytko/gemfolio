@@ -27,7 +27,7 @@ export function HomeSearchInput() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={language === 'ja' ? 'カードを検索' : 'Search card name (e.g. Luffy)'}
-                    className="w-56 sm:w-80 pl-8 pr-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
+                    className="w-72 sm:w-96 pl-8 pr-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50"
                 />
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
             </div>

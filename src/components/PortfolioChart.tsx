@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
     ComposedChart,
     Bar,
@@ -10,37 +11,109 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-
-// Extended demo chart data
-const chartData = [
-    { date: '10/1', value: 1200, items: 5 },
-    { date: '10/8', value: 1300, items: 5 },
-    { date: '10/15', value: 1400, items: 6 },
-    { date: '10/22', value: 1350, items: 6 },
-    { date: '11/1', value: 1500, items: 7 },
-    { date: '11/8', value: 1600, items: 7 },
-    { date: '11/15', value: 1700, items: 8 },
-    { date: '11/22', value: 1650, items: 8 },
-    { date: '12/1', value: 1800, items: 8 },
-    { date: '12/8', value: 2000, items: 9 },
-    { date: '12/15', value: 2200, items: 10 },
-    { date: '12/22', value: 2450, items: 12 },
-];
+import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { getPortfolioHistory, PortfolioHistoryPoint } from '@/lib/api/portfolioHistory';
+import { Loader2 } from 'lucide-react';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 export default function PortfolioChart() {
-    const barWidth = 32;
-    const chartWidth = chartData.length * barWidth;
+    const { user } = useAuth();
+    const { language } = useLanguage();
+    const { convertPrice } = useExchangeRate(); // Used only for formatting if needed, but API handles values
+    const [data, setData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Y-axis labels
-    const leftLabels = ['0', '1k', '2k', '3k'];
-    const rightLabels = ['0', '5', '10', '15'];
+    const currencySymbol = language === 'ja' ? '¥' : '$';
+
+    useEffect(() => {
+        async function loadHistory() {
+            if (!user) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // API returns correct currency values based on parameter
+                const history = await getPortfolioHistory(
+                    user.id,
+                    30, // Last 30 days
+                    language === 'ja' ? 'JPY' : 'USD'
+                );
+
+                if (history && history.length > 0) {
+                    const mappedData = history.map(item => ({
+                        date: new Date(item.recorded_date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }),
+                        value: item.total_value,
+                        items: item.total_items
+                    }));
+                    setData(mappedData);
+                } else {
+                    setData([]);
+                }
+            } catch (error) {
+                console.error('Failed to load portfolio chart data:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadHistory();
+    }, [user, language]);
+
+    if (loading) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <Loader2 size={24} className="text-amber-400 animate-spin" />
+            </div>
+        );
+    }
+
+    if (data.length === 0) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                <p className="text-xs">{language === 'ja' ? 'データがありません' : 'No data available'}</p>
+                <p className="text-[10px] mt-1 opacity-70">
+                    {language === 'ja' ? '明日以降に更新されます' : 'Check back tomorrow'}
+                </p>
+            </div>
+        );
+    }
+
+    // Calculate Y-Axis Domains and Labels
+    const maxValue = Math.max(...data.map(d => d.value), 100);
+    const maxItems = Math.max(...data.map(d => d.items), 5);
+
+    // Add 10-20% padding
+    const yDomainMax = Math.ceil(maxValue * 1.1);
+    const yRightDomainMax = Math.ceil(maxItems * 1.2);
+
+    // Generate labels (0, 1/3, 2/3, 1)
+    const generateLabels = (max: number, count: number = 3) => {
+        const labels = [];
+        for (let i = 0; i <= count; i++) {
+            const val = (max / count) * i;
+            if (val >= 1000) {
+                labels.push(`${(val / 1000).toFixed(1).replace(/\.0$/, '')}k`);
+            } else {
+                labels.push(Math.round(val).toString());
+            }
+        }
+        return labels;
+    };
+
+    const leftLabels = generateLabels(yDomainMax, 3);
+    const rightLabels = generateLabels(yRightDomainMax, 3);
+
+    const barWidth = 32;
+    const chartWidth = Math.max(data.length * barWidth, 300); // Minimum width to look good
 
     return (
         <div className="relative h-full flex">
-            {/* Fixed Left Y-Axis (HTML) */}
-            <div className="w-6 flex-shrink-0 h-full flex flex-col justify-between pr-1 pb-5">
+            {/* Fixed Left Y-Axis (Value) */}
+            <div className="w-8 flex-shrink-0 h-full flex flex-col justify-between pr-1 pb-6 pt-1">
                 {[...leftLabels].reverse().map((label, i) => (
-                    <span key={i} className="text-[8px] text-amber-400/70 text-right leading-none">
+                    <span key={i} className="text-[8px] text-amber-400/70 text-right leading-none truncate">
                         {label}
                     </span>
                 ))}
@@ -51,44 +124,43 @@ export default function PortfolioChart() {
                 className="flex-1 overflow-x-auto scrollbar-hide"
                 style={{ WebkitOverflowScrolling: 'touch' }}
             >
-                <div style={{ width: chartWidth, height: '100%', minHeight: 90 }}>
+                <div style={{ width: data.length > 10 ? chartWidth : '100%', height: '100%', minHeight: 90 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+                        <ComposedChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" vertical={false} />
                             <XAxis
                                 dataKey="date"
-                                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 7, dy: 5 }}
+                                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 8, dy: 5 }}
                                 axisLine={{ stroke: 'rgba(255,255,255,0.15)' }}
                                 tickLine={false}
                                 interval={0}
-                                height={28}
-                                angle={-45}
-                                textAnchor="end"
+                                height={24}
+                            // angle={-45}
+                            // textAnchor="end"
                             />
-                            <YAxis yAxisId="left" domain={[0, 3000]} hide />
-                            <YAxis yAxisId="right" orientation="right" domain={[0, 15]} hide />
+                            <YAxis yAxisId="left" domain={[0, yDomainMax]} hide />
+                            <YAxis yAxisId="right" orientation="right" domain={[0, yRightDomainMax]} hide />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: 'rgba(15, 23, 42, 0.95)',
                                     border: '1px solid rgba(212, 175, 55, 0.3)',
                                     borderRadius: '6px',
-                                    fontSize: '9px',
-                                    padding: '4px 8px',
+                                    fontSize: '10px',
+                                    padding: '6px 10px',
                                 }}
-                                labelStyle={{ color: 'white', marginBottom: '2px' }}
-                                formatter={(value, name) => {
-                                    if (name === 'Value') {
-                                        // Demo data hardcoded in USD, so just converting logic conceptually
-                                        // In real implementation, data should be fetched in correct currency
-                                        return [`$${Number(value).toLocaleString()}`, 'Value'];
-                                    }
-                                    return [value, 'Items'];
+                                itemStyle={{ padding: 0 }}
+                                labelStyle={{ color: 'white', marginBottom: '4px', fontWeight: 'bold' }}
+                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                formatter={(value: any, name: any) => {
+                                    if (name === 'Value') return [`${currencySymbol}${Number(value).toLocaleString()}`, language === 'ja' ? '評価額' : 'Value'];
+                                    if (name === 'Items') return [`${value}`, language === 'ja' ? '枚数' : 'Items'];
+                                    return [value, name];
                                 }}
                             />
                             <Bar
                                 yAxisId="left"
                                 dataKey="value"
-                                fill="rgba(251, 191, 36, 0.7)"
+                                fill="rgba(251, 191, 36, 0.8)"
                                 radius={[2, 2, 0, 0]}
                                 name="Value"
                                 barSize={16}
@@ -98,8 +170,9 @@ export default function PortfolioChart() {
                                 type="monotone"
                                 dataKey="items"
                                 stroke="#22d3ee"
-                                strokeWidth={1.5}
-                                dot={{ fill: '#22d3ee', strokeWidth: 0, r: 2 }}
+                                strokeWidth={2}
+                                dot={{ fill: '#0f172a', stroke: '#22d3ee', strokeWidth: 1.5, r: 3 }}
+                                activeDot={{ r: 4, strokeWidth: 0 }}
                                 name="Items"
                             />
                         </ComposedChart>
@@ -107,8 +180,8 @@ export default function PortfolioChart() {
                 </div>
             </div>
 
-            {/* Fixed Right Y-Axis (HTML) */}
-            <div className="w-4 flex-shrink-0 h-full flex flex-col justify-between pl-1 pb-5">
+            {/* Fixed Right Y-Axis (Items) */}
+            <div className="w-5 flex-shrink-0 h-full flex flex-col justify-between pl-1 pb-6 pt-1">
                 {[...rightLabels].reverse().map((label, i) => (
                     <span key={i} className="text-[8px] text-cyan-400/70 text-left leading-none">
                         {label}
