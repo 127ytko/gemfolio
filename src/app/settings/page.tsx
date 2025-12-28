@@ -485,14 +485,9 @@ export default function SettingsPage() {
                 </a>
             </div>
 
-            {/* Copyright */}
-            <div className="mt-8 text-center">
-                <p className="text-xs text-slate-600">© 2025 GemFolio. All Rights Reserved.</p>
-            </div>
-
             {/* Delete Account Section - Only show for logged in users */}
             {user && (
-                <div className="mt-8 pt-8 border-t border-slate-800">
+                <div className="mt-4">
                     <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <div className="w-10 h-10 bg-red-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -512,6 +507,11 @@ export default function SettingsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Copyright */}
+            <div className="mt-8 text-center">
+                <p className="text-xs text-slate-600">© 2025 GemFolio. All Rights Reserved.</p>
+            </div>
 
             {/* Delete Confirmation Modal */}
             {showDeleteConfirm && (

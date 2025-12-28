@@ -224,10 +224,10 @@ function VaultPageContent() {
                     {/* Holdings Section */}
                     <section className="mb-6">
                         <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-sm font-semibold text-slate-400">{t('portfolio.holdings')}</h2>
+                            <h2 className="text-sm font-semibold text-slate-400">{language === 'ja' ? '保有カード' : 'Collections'}</h2>
                             <Link
                                 href="/search"
-                                className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300"
+                                className="flex items-center gap-1 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-amber-400 hover:border-amber-500/50 transition-colors"
                             >
                                 <Plus size={14} />
                                 {t('common.add')}

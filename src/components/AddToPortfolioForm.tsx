@@ -33,7 +33,7 @@ export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddTo
         return formatWithComma(Math.round(price / EXCHANGE_RATE));
     };
 
-    const [purchasePrice, setPurchasePrice] = useState(getDisplayPrice(defaultPrice));
+    const [purchasePrice, setPurchasePrice] = useState('');
     const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
     const [quantity, setQuantity] = useState(1);
     const [condition, setCondition] = useState<ConditionType>('RAW');
