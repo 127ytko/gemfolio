@@ -193,6 +193,30 @@ export async function GET(request: NextRequest) {
         });
     }
 
+    // Update exchange rates if this is the start of the batch (currentOffset == 0)
+    if (currentOffset === 0) {
+        try {
+            const rateRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            if (rateRes.ok) {
+                const rateData = await rateRes.json();
+                const usdToJpy = rateData.rates.JPY;
+                const usdToEur = rateData.rates.EUR;
+                const usdToGbp = rateData.rates.GBP;
+                const jpyToUsd = 1 / usdToJpy;
+
+                await supabase.from('exchange_rates').insert([
+                    { base_currency: 'USD', target_currency: 'JPY', rate: usdToJpy },
+                    { base_currency: 'USD', target_currency: 'EUR', rate: usdToEur },
+                    { base_currency: 'USD', target_currency: 'GBP', rate: usdToGbp },
+                    { base_currency: 'JPY', target_currency: 'USD', rate: jpyToUsd }
+                ]);
+                console.log('Exchange rates updated successfully');
+            }
+        } catch (e) {
+            console.error('Failed to update exchange rates:', e);
+        }
+    }
+
     // Fetch batch
     const { data: cards, error } = await supabase
         .from('cards')

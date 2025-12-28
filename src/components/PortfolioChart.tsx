@@ -77,7 +77,11 @@ export default function PortfolioChart() {
                                 }}
                                 labelStyle={{ color: 'white', marginBottom: '2px' }}
                                 formatter={(value, name) => {
-                                    if (name === 'Value') return [`$${Number(value).toLocaleString()}`, 'Value'];
+                                    if (name === 'Value') {
+                                        // Demo data hardcoded in USD, so just converting logic conceptually
+                                        // In real implementation, data should be fetched in correct currency
+                                        return [`$${Number(value).toLocaleString()}`, 'Value'];
+                                    }
                                     return [value, 'Items'];
                                 }}
                             />

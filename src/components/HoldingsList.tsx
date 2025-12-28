@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, X } from 'lucide-react';
 import { EditHoldingModal } from './EditHoldingModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface HoldingEntry {
     entry_id: string;
@@ -204,6 +204,7 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
     const profitPercent = item.cost > 0 ? (profit / item.cost) * 100 : 0;
     const isPositive = profit >= 0;
     const { language } = useLanguage();
+    const { convertPrice } = useExchangeRate();
 
     const cardName = language === 'ja' ? (item.name_ja || item.name_en) : item.name_en;
     const setName = language === 'ja' ? (item.set_name_ja || item.set_name_en) : item.set_name_en;
@@ -256,7 +257,7 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
                         <span className="text-sm font-bold text-amber-400">
                             {language === 'ja'
                                 ? `¥${item.current_value.toLocaleString()}`
-                                : `$${Math.round(item.current_value / EXCHANGE_RATE).toLocaleString()}`
+                                : `$${convertPrice(item.current_value).toLocaleString()}`
                             }
                         </span>
                     </div>
@@ -274,7 +275,7 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
                         {isPositive ? '+' : '-'}
                         {language === 'ja'
                             ? `¥${Math.abs(profit).toLocaleString()}`
-                            : `$${Math.round(Math.abs(profit) / EXCHANGE_RATE).toLocaleString()}`
+                            : `$${convertPrice(Math.abs(profit)).toLocaleString()}`
                         }
                         {' '}({isPositive ? '+' : ''}{profitPercent.toFixed(0)}%)
                     </span>

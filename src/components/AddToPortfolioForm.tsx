@@ -7,8 +7,7 @@ import { DatePicker } from './DatePicker';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { addToPortfolio } from '@/lib/api/portfolio';
-
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface AddToPortfolioFormProps {
     cardId: string;
@@ -20,17 +19,16 @@ type ConditionType = 'PSA10' | 'RAW';
 
 export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddToPortfolioFormProps) {
     const { language } = useLanguage();
+    const { convertPrice, convertInput } = useExchangeRate();
     const formatWithComma = (value: number) => value.toLocaleString();
     const parseCommaNumber = (value: string) => value.replace(/,/g, '');
-
-
 
     // Convert price for display based on language
     const getDisplayPrice = (price: number) => {
         if (price <= 0) return '';
         if (language === 'ja') return formatWithComma(price);
         // Convert JPY to USD for display
-        return formatWithComma(Math.round(price / EXCHANGE_RATE));
+        return formatWithComma(convertPrice(price));
     };
 
     const [purchasePrice, setPurchasePrice] = useState('');
@@ -40,11 +38,6 @@ export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddTo
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Update price when language changes (optional, but good for UX)
-    // useEffect(() => {
-    //     setPurchasePrice(getDisplayPrice(defaultPrice));
-    // }, [language, defaultPrice]);
 
     const { user } = useAuth();
     const router = useRouter();
@@ -101,7 +94,7 @@ export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddTo
 
             // If input is in USD, convert to JPY for storage
             if (language !== 'ja') {
-                priceToSave = Math.round(priceToSave * EXCHANGE_RATE);
+                priceToSave = convertInput(priceToSave);
             }
 
             await addToPortfolio({
@@ -114,6 +107,7 @@ export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddTo
 
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
+            setPurchasePrice('');
         } catch (err) {
             console.error('Error saving to portfolio:', err);
             setError(language === 'ja' ? '保存に失敗しました' : 'Failed to save');

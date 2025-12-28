@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/context/LanguageContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 // Dynamic import to avoid SSR issues with recharts
 const ChartComponent = dynamic(() => import('./PortfolioChart'), {
@@ -35,6 +35,7 @@ export function TotalValueCard({
     const isProfitPositive = totalProfit >= 0;
     const isTodayPositive = todayChange >= 0;
     const { language } = useLanguage();
+    const { convertPrice } = useExchangeRate();
 
     const t = {
         totalValue: language === 'ja' ? 'ポートフォリオ評価額' : 'Total Portfolio Value',
@@ -51,7 +52,7 @@ export function TotalValueCard({
         if (language === 'ja') {
             return `¥${value.toLocaleString()}`;
         }
-        return `$${Math.round(value / EXCHANGE_RATE).toLocaleString()}`;
+        return `$${convertPrice(value).toLocaleString()}`;
     };
 
     return (

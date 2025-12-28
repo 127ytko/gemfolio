@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Card } from '@/types/database';
 import { useLanguage } from '@/context/LanguageContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface CardListProps {
     cards: Card[];
@@ -21,6 +21,7 @@ export function CardList({ cards }: CardListProps) {
 
 function CardListItem({ card }: { card: Card }) {
     const { language } = useLanguage();
+    const { convertPrice } = useExchangeRate();
 
     // Select name and set based on language
     const cardName = language === 'ja'
@@ -84,7 +85,7 @@ function CardListItem({ card }: { card: Card }) {
                         <span className="text-base font-bold text-amber-400">
                             {language === 'ja'
                                 ? `¥${card.price_raw_avg?.toLocaleString() ?? '-'}`
-                                : `$${card.price_raw_avg ? Math.round(card.price_raw_avg / EXCHANGE_RATE).toLocaleString() : '-'}`
+                                : `$${card.price_raw_avg ? convertPrice(card.price_raw_avg).toLocaleString() : '-'}`
                             }
                         </span>
                     </div>

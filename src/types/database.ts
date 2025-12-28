@@ -352,10 +352,13 @@ export interface UserProfile {
 export interface PortfolioValueHistory {
     id: string;
     user_id: string;
-    total_value: number;
-    total_cost: number;
+    total_value_jpy: number;
+    total_cost_jpy: number;
+    total_value_usd: number;
+    total_cost_usd: number;
     total_items: number;
     total_quantity: number;
+    exchange_rate: number;
     recorded_date: string;
     recorded_at: string;
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface TopPerformerCard {
     card_id: string;
@@ -86,6 +86,7 @@ export function TopPerformers({ cards }: TopPerformersProps) {
 function TopPerformerItem({ card, rank }: { card: TopPerformerCard; rank: number }) {
     const isPositive = card.weekly_change >= 0;
     const { language } = useLanguage();
+    const { convertPrice } = useExchangeRate();
 
     const cardName = language === 'ja' ? (card.name_ja || card.name_en) : card.name_en;
 
@@ -141,7 +142,7 @@ function TopPerformerItem({ card, rank }: { card: TopPerformerCard; rank: number
                         <span className="text-[10px] font-bold text-amber-400">
                             {language === 'ja'
                                 ? `¥${card.price_avg.toLocaleString()}`
-                                : `$${Math.round(card.price_avg / EXCHANGE_RATE).toLocaleString()}`
+                                : `$${convertPrice(card.price_avg).toLocaleString()}`
                             }
                         </span>
                     </div>

@@ -13,14 +13,16 @@ export interface PortfolioHistoryPoint {
  */
 export async function getPortfolioHistory(
     userId: string,
-    days: number = 30
+    days: number = 30,
+    currency: 'USD' | 'JPY' = 'USD'
 ): Promise<PortfolioHistoryPoint[]> {
     const supabase = getSupabaseClient();
 
     const { data, error } = await supabase
         .rpc('get_portfolio_history' as never, {
             p_user_id: userId,
-            p_days: days
+            p_days: days,
+            p_currency: currency
         } as never);
 
     if (error) {
@@ -54,28 +56,32 @@ export async function recordPortfolioSnapshot(userId: string): Promise<boolean> 
  * Get latest portfolio value from history
  */
 export async function getLatestPortfolioValue(userId: string): Promise<{
-    total_value: number;
-    total_cost: number;
-    yesterday_value: number | null;
+    total_value_jpy: number;
+    total_cost_jpy: number;
+    total_value_usd: number;
+    total_cost_usd: number;
+    recorded_date: string;
 } | null> {
     const supabase = getSupabaseClient();
 
     const { data, error } = await supabase
         .from('portfolio_value_history' as never)
-        .select('total_value, total_cost, recorded_date')
+        .select('total_value_jpy, total_cost_jpy, total_value_usd, total_cost_usd, recorded_date')
         .eq('user_id', userId)
         .order('recorded_date', { ascending: false })
-        .limit(2);
+        .limit(1);
 
     if (error || !data || data.length === 0) {
         return null;
     }
 
-    const records = data as { total_value: number; total_cost: number; recorded_date: string }[];
+    const record = data[0] as any;
 
     return {
-        total_value: records[0].total_value,
-        total_cost: records[0].total_cost,
-        yesterday_value: records.length > 1 ? records[1].total_value : null
+        total_value_jpy: record.total_value_jpy,
+        total_cost_jpy: record.total_cost_jpy,
+        total_value_usd: record.total_value_usd,
+        total_cost_usd: record.total_cost_usd,
+        recorded_date: record.recorded_date
     };
 }
