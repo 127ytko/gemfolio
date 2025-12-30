@@ -1,0 +1,6 @@
+🔎 Searching eBay for: OP07-051 Boa Hancock SR
+💱 Exchange Rate: 1 USD = 150 JPY
+HTTP Error: 500 Internal Server Error
+Response: {"errorMessage":[{"error":[{"errorId":["10001"],"domain":["Security"],"subdomain":["RateLimiter"],"severity":["Error"],"category":["System"],"message":["Service call has exceeded the number of times the operation is allowed to be called"],"parameter":[{"@name":"Param1","__value__":"findItemsByKeywords"},{"@name":"Param2","__value__":"FindingService"}]}]}]}
+HTTP Error: 500 Internal Server Error
+Response: {"errorMessage":[{"error":[{"errorId":["10001"],"domain":["Security"],"subdomain":["RateLimiter"],"severity":["Error"],"category":["System"],"message":["Service call has exceeded the number of times the operation is allowed to be called"],"parameter":[{"@name":"Param1","__value__":"findItemsByKeywords"},{"@name":"Param2","__value__":"FindingService"}]}]}]}

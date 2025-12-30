@@ -47,9 +47,14 @@ export function Header() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center">
                     <div className="flex flex-col">
-                        <span className="text-lg font-black text-amber-400 tracking-wide leading-tight">
-                            GemFolio
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-lg font-black text-amber-400 tracking-wide leading-tight">
+                                GemFolio
+                            </span>
+                            <span className="px-1 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[8px] font-bold rounded leading-none">
+                                BETA
+                            </span>
+                        </div>
                         <span className="text-[9px] text-slate-400 tracking-wider">
                             TCG Portfolio Manager
                         </span>

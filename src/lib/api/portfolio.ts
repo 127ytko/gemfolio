@@ -8,7 +8,8 @@ interface PortfolioEntry {
     card_id: string;
     condition: CardCondition;
     quantity: number;
-    purchase_price: number;
+    purchase_price_usd: number;
+    purchase_price_jpy: number | null;
     purchase_date: string | null;
     created_at: string;
     updated_at: string;
@@ -33,7 +34,8 @@ export async function addToPortfolio(data: {
     card_id: string;
     condition: CardCondition;
     quantity: number;
-    purchase_price: number;
+    purchase_price_usd: number;
+    purchase_price_jpy: number | null;
     purchase_date?: string | null;
 }) {
     const supabase = getSupabaseClient();
@@ -51,7 +53,8 @@ export async function addToPortfolio(data: {
             card_id: data.card_id,
             condition: data.condition,
             quantity: data.quantity,
-            purchase_price: data.purchase_price,
+            purchase_price_usd: data.purchase_price_usd,
+            purchase_price_jpy: data.purchase_price_jpy,
             purchase_date: data.purchase_date || null,
         })
         .select()
@@ -108,7 +111,8 @@ export async function updatePortfolioEntry(
     updates: {
         condition?: CardCondition;
         quantity?: number;
-        purchase_price?: number;
+        purchase_price_usd?: number;
+        purchase_price_jpy?: number | null;
         purchase_date?: string | null;
     }
 ) {
@@ -156,7 +160,7 @@ export async function getPortfolioSummary() {
             ? card?.price_raw_avg || 0
             : card?.price_psa10_avg || 0;
 
-        totalCost += entry.purchase_price * entry.quantity;
+        totalCost += entry.purchase_price_usd * entry.quantity;
         totalValue += currentPrice * entry.quantity;
         totalItems += entry.quantity;
     }

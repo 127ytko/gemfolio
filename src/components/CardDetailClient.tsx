@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 import type { Card } from '@/types/database';
 import { AddToPortfolioForm } from '@/components/AddToPortfolioForm';
 import { CardPriceSection } from '@/components/CardPriceSection';
@@ -20,13 +21,14 @@ interface CardDetailClientProps {
 export function CardDetailClient({
     card,
     rawJapanPrice,
-    rawEbayPrice,
+    rawEbayPrice, // Unused, replaced by dynamic calc
     psa10JapanPrice,
-    psa10EbayPrice,
+    psa10EbayPrice, // Unused, replaced by dynamic calc
     rawChartData,
     psa10ChartData,
 }: CardDetailClientProps) {
     const { language, t } = useLanguage();
+    const { convertPrice } = useExchangeRate();
 
     // Select name, set, rarity based on language
     const cardName = language === 'ja'
@@ -116,8 +118,14 @@ export function CardDetailClient({
 
             {/* Price Comparison & History (synced tabs) */}
             <CardPriceSection
-                rawPrices={{ japanPrice: rawJapanPrice, ebayPrice: rawEbayPrice }}
-                psa10Prices={{ japanPrice: psa10JapanPrice, ebayPrice: psa10EbayPrice }}
+                rawPrices={{
+                    japanPrice: rawJapanPrice,
+                    ebayPrice: rawEbayPrice
+                }}
+                psa10Prices={{
+                    japanPrice: psa10JapanPrice,
+                    ebayPrice: psa10EbayPrice
+                }}
                 rawChartData={rawChartData}
                 psa10ChartData={psa10ChartData}
                 rawCurrentPrice={rawEbayPrice}
@@ -130,7 +138,11 @@ export function CardDetailClient({
             {/* eBay CTA */}
             <div className="px-4 pb-8">
                 <a
-                    href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.name_en || '') + ' ' + (card.rarity_en || '') + ' Japanese')}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio`}
+                    href={
+                        card.ebay_listing_url_psa10 ||
+                        card.ebay_listing_url_raw ||
+                        `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.rarity_en || '') + ' Japanese')}&_sacat=183454&LH_BIN=1&_sop=15&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-colors active:scale-[0.98]"

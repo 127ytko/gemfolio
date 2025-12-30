@@ -76,7 +76,7 @@ const translations: Record<Language, Record<string, string>> = {
         'portfolio.totalCost': '総投資額',
         'portfolio.totalProfit': '総利益',
         'portfolio.todayChange': '本日の変動',
-        'portfolio.holdings': '保有カード',
+        'portfolio.holdings': 'コレクション',
         'portfolio.empty': 'ポートフォリオにカードがありません',
         'portfolio.addFirst': '最初のカードを追加しましょう',
 

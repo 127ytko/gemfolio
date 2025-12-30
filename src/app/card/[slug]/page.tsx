@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase';
 import type { Card } from '@/types/database';
 import { CardDetailClient } from '@/components/CardDetailClient';
-import { EXCHANGE_RATE } from '@/lib/constants';
+
 
 async function getCardData(slug: string): Promise<Card | null> {
     const supabase = await getSupabaseServer();
@@ -75,12 +75,12 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
 
     // Current prices from card data
     const rawJapanPrice = card.price_raw_avg || 0;
-    const rawEbayPrice = rawJapanPrice > 0 ? Math.round(rawJapanPrice / EXCHANGE_RATE) : 0; // Convert to USD estimate
+    const rawEbayPrice = card.price_ebay_raw || 0;
     const psa10JapanPrice = card.price_psa10_avg || 0;
-    const psa10EbayPrice = psa10JapanPrice > 0 ? Math.round(psa10JapanPrice / EXCHANGE_RATE) : 0;
+    const psa10EbayPrice = card.price_ebay_psa10 || 0;
 
     // Format chart data from price history
-    const formatChartData = (history: { recorded_at: string; price_avg: number }[], ebayRate: number = EXCHANGE_RATE) => {
+    const formatChartData = (history: { recorded_at: string; price_avg: number }[]) => {
         if (history.length === 0) {
             return [];
         }
@@ -91,7 +91,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
             return {
                 date: dateStr,
                 japan: h.price_avg,
-                ebay: Math.round(h.price_avg / ebayRate),
+                ebay: 0, // Calculated on client side
             };
         });
     };

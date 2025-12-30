@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 import { Clock } from 'lucide-react';
-import { EXCHANGE_RATE } from '@/lib/constants';
 
 interface PriceData {
     japanPrice: number;
@@ -21,6 +21,7 @@ interface PriceComparisonTabsProps {
 export function PriceComparisonTabs({ rawPrices, psa10Prices, activeTab, onTabChange, updatedAt }: PriceComparisonTabsProps) {
     const [showJapanInfo, setShowJapanInfo] = useState(false);
     const { language } = useLanguage();
+    const { rate } = useExchangeRate();
 
     const currentPrices = activeTab === 'Raw' ? rawPrices : psa10Prices;
 
@@ -40,7 +41,7 @@ export function PriceComparisonTabs({ rawPrices, psa10Prices, activeTab, onTabCh
         japanMarket: language === 'ja' ? '日本市場価格 (¥)' : 'Japan Market (¥)',
         ebayPrice: language === 'ja' ? 'eBay価格 (USD)' : 'eBay Price (USD)',
         japanInfo: language === 'ja' ? '日本の主要カードショップの平均価格です。' : 'Avg. price from major card shops in Japan.',
-        exchangeRate: language === 'ja' ? `為替レート: ¥${EXCHANGE_RATE} / USD` : `Exchange Rate: ¥${EXCHANGE_RATE} / USD`,
+        exchangeRate: language === 'ja' ? `為替レート: ¥${rate} / USD` : `Exchange Rate: ¥${rate} / USD`,
         comingSoon: language === 'ja' ? 'Coming Soon' : 'Coming Soon',
         rawMint: language === 'ja' ? '素体 (美品)' : 'Raw (Mint)',
     };
@@ -102,7 +103,7 @@ export function PriceComparisonTabs({ rawPrices, psa10Prices, activeTab, onTabCh
                                 </p>
                                 <span className="text-xs text-slate-500">≒</span>
                                 <p className="text-lg font-bold text-amber-400">
-                                    ${Math.round(currentPrices.japanPrice / EXCHANGE_RATE).toLocaleString()}
+                                    ${Math.round(currentPrices.japanPrice / rate).toLocaleString()}
                                 </p>
                             </div>
                         ) : (
@@ -117,15 +118,21 @@ export function PriceComparisonTabs({ rawPrices, psa10Prices, activeTab, onTabCh
                     <div className="bg-slate-800/50 rounded-lg p-3 relative">
                         <p className="text-xs text-slate-500 mb-1">{t.ebayPrice}</p>
                         {activeTab === 'Raw' ? (
-                            <div className="flex items-baseline gap-2">
-                                <p className="text-lg font-bold text-amber-400">
-                                    ${currentPrices.ebayPrice.toLocaleString()}
-                                </p>
-                                <span className="text-xs text-slate-500">≒</span>
-                                <p className="text-lg font-bold text-white">
-                                    ¥{(currentPrices.ebayPrice * EXCHANGE_RATE).toLocaleString()}
-                                </p>
-                            </div>
+                            currentPrices.ebayPrice > 0 ? (
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-lg font-bold text-amber-400">
+                                        ${currentPrices.ebayPrice.toLocaleString()}
+                                    </p>
+                                    <span className="text-xs text-slate-500">≒</span>
+                                    <p className="text-lg font-bold text-white">
+                                        ¥{Math.round(currentPrices.ebayPrice * rate).toLocaleString()}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-lg font-bold text-slate-500">No Data</p>
+                                </div>
+                            )
                         ) : (
                             <p className="text-lg font-bold text-slate-500">{t.comingSoon}</p>
                         )}

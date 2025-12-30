@@ -55,7 +55,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${notoSansJP.variable} font-sans antialiased bg-slate-950 text-slate-100`}>
         <Providers>
           <Header />
-          <main className="pt-14 pb-16 min-h-screen">
+          <main className="pt-12 pb-20 min-h-screen">
             {children}
           </main>
           <BottomNav />

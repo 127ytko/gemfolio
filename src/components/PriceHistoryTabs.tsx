@@ -6,7 +6,7 @@ import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { useLanguage } from '@/context/LanguageContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface PriceDataPoint {
     date: string;
@@ -37,20 +37,22 @@ export function PriceHistoryTabs({
 }: PriceHistoryTabsProps) {
     const [timeRange, setTimeRange] = useState<'1W' | '1M' | '3M' | 'All'>('1M');
     const { language } = useLanguage();
+    const { rate } = useExchangeRate();
 
-
-
-    // Source data: japan is in JPY, ebay is in USD
+    // Source data: japan is in JPY, ebay is in USD (but derived from JPY in backend, so we recalculate)
     const sourceData = activeTab === 'Raw' ? rawData : psa10Data;
 
-    // Transform data based on language
-    // JA: Show both in JPY (ebay converted to JPY)
-    // EN: Show both in USD (japan converted to USD)
-    const currentData = sourceData.map(point => ({
-        date: point.date,
-        japan: language === 'ja' ? point.japan : Math.round(point.japan / EXCHANGE_RATE),
-        ebay: language === 'ja' ? Math.round(point.ebay * EXCHANGE_RATE) : point.ebay,
-    }));
+    // Transform data based on language and current rate
+    // JA: Show both in JPY
+    // EN: Show both in USD
+    const currentData = sourceData.map(point => {
+        const priceInUsd = Math.round(point.japan / rate);
+        return {
+            date: point.date,
+            japan: language === 'ja' ? point.japan : priceInUsd,
+            ebay: language === 'ja' ? Math.round(priceInUsd * rate) : priceInUsd,
+        };
+    });
 
     const currencySymbol = language === 'ja' ? '¥' : '$';
     const formatCurrency = (value: number) => `${currencySymbol}${value.toLocaleString()}`;

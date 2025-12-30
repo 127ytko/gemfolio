@@ -227,7 +227,10 @@ export default function SettingsPage() {
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
-                throw new Error('No session found');
+                // If no session, force logout and redirect
+                await signOut();
+                window.location.href = '/';
+                return;
             }
 
             // Call Edge Function to delete account
@@ -247,23 +250,40 @@ export default function SettingsPage() {
                 throw new Error(errorData.error || 'Failed to delete account');
             }
 
-            // Force clear local storage items related to Supabase
-            // This handles cases where signOut might not clear everything immediately
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
-                    localStorage.removeItem(key);
-                }
-            }
+            // 1. Sign out from Supabase (Server-side)
+            await supabase.auth.signOut();
 
-            // Use AuthContext signOut to update state and clear session
+            // 2. Sign out from Context (State)
             await signOut();
 
-            // Force hard reload to home to ensure clean state
-            window.location.href = '/';
-        } catch (error) {
+            // 3. Clear all storage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 4. Aggressively clear Cookies
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                // Clear for current path, root path, and domain
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname.split('.').slice(1).join('.');
+            }
+
+            // 5. Short delay before hard redirect to ensure cleanup propagates
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+
+        } catch (error: any) {
             console.error('Error deleting account:', error);
             setIsDeleting(false);
+            alert(language === 'ja'
+                ? `アカウント削除に失敗しました: ${error.message || '不明なエラー'}`
+                : `Failed to delete account: ${error.message || 'Unknown error'}`
+            );
         }
     };
 
@@ -527,12 +547,14 @@ export default function SettingsPage() {
                             <div className="flex-1">
                                 <h2 className="text-sm font-semibold text-red-400">{t.deleteAccount}</h2>
                                 <p className="text-xs text-slate-500 mt-1">{t.deleteAccountDesc}</p>
-                                <button
-                                    onClick={() => setShowDeleteConfirm(true)}
-                                    className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition-colors"
-                                >
-                                    {t.deleteAccount}
-                                </button>
+                                <div className="flex justify-end mt-3">
+                                    <button
+                                        onClick={() => setShowDeleteConfirm(true)}
+                                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition-colors"
+                                    >
+                                        {t.deleteAccount}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

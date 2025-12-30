@@ -6,14 +6,15 @@ import { format } from 'date-fns';
 import { ja, enUS } from 'date-fns/locale';
 import { DatePicker } from './DatePicker';
 import { useLanguage } from '@/context/LanguageContext';
-import { EXCHANGE_RATE } from '@/lib/constants';
+import { useExchangeRate } from '@/context/ExchangeRateContext';
 
 interface HoldingEntry {
     entry_id: string;
     acquired_date: string;
     condition: 'PSA10' | 'RAW';
     quantity: number;
-    purchase_price: number;
+    purchase_price_usd: number;
+    purchase_price_jpy: number | null;
 }
 
 interface EditHoldingModalProps {
@@ -21,6 +22,7 @@ interface EditHoldingModalProps {
     onClose: () => void;
     card: {
         card_id: string;
+        slug: string;
         name_en: string;
         name_ja?: string;
         card_number: string;
@@ -35,7 +37,7 @@ interface EditHoldingModalProps {
         profitPercent: number;
     };
     entries: HoldingEntry[];
-    onSave: (entry_id: string, quantity: number, purchase_price: number, acquired_date: string) => void;
+    onSave: (entry_id: string, quantity: number, purchase_price_usd: number, purchase_price_jpy: number | null, acquired_date: string, condition: 'PSA10' | 'RAW') => void;
     onDelete: (entry_id: string) => void;
 }
 
@@ -49,6 +51,7 @@ export function EditHoldingModal({
     summary,
 }: EditHoldingModalProps) {
     const { language } = useLanguage();
+    const { convertPrice, convertInput } = useExchangeRate();
 
     const t = {
         title: language === 'ja' ? '編集' : 'Edit',
@@ -127,6 +130,15 @@ export function EditHoldingModal({
                             <p className="text-[10px] text-slate-500 mt-1 truncate">
                                 {setName}
                             </p>
+
+                            {/* Link to card detail */}
+                            <a
+                                href={`/card/${card.slug}`}
+                                className="inline-flex items-center gap-1 mt-2 text-[10px] text-amber-500 hover:text-amber-400 transition-colors"
+                            >
+                                {language === 'ja' ? '詳細を見る' : 'View Details'}
+                                <span className="text-xs">›</span>
+                            </a>
                         </div>
                     </div>
 
@@ -137,8 +149,8 @@ export function EditHoldingModal({
                                 <p className="text-[10px] text-slate-500 mb-0.5">{t.value}</p>
                                 <p className="text-xl font-bold text-amber-400">
                                     {language === 'ja'
-                                        ? `¥${summary.current_value.toLocaleString()}`
-                                        : `$${Math.round(summary.current_value / EXCHANGE_RATE).toLocaleString()}`
+                                        ? `¥${Math.round(convertInput(summary.current_value)).toLocaleString()}`
+                                        : `$${summary.current_value.toLocaleString()}`
                                     }
                                 </p>
                             </div>
@@ -149,8 +161,8 @@ export function EditHoldingModal({
                                     <p className={`text-xl font-bold ${summary.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                         {summary.profit >= 0 ? '+' : '-'}
                                         {language === 'ja'
-                                            ? `¥${Math.abs(summary.profit).toLocaleString()}`
-                                            : `$${Math.round(Math.abs(summary.profit) / EXCHANGE_RATE).toLocaleString()}`
+                                            ? `¥${Math.round(convertInput(Math.abs(summary.profit))).toLocaleString()}`
+                                            : `$${Math.abs(summary.profit).toLocaleString()}`
                                         }
                                     </p>
                                     <span className={`text-xs font-medium ${summary.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -169,7 +181,7 @@ export function EditHoldingModal({
                                 entry={entry}
                                 t={t}
                                 language={language}
-                                onSave={(quantity, price, date) => onSave(entry.entry_id, quantity, price, date)}
+                                onSave={onSave}
                                 onDelete={() => onDelete(entry.entry_id)}
                             />
                         ))}
@@ -190,18 +202,23 @@ function HoldingEntryCard({
     entry: HoldingEntry;
     t: Record<string, string>;
     language: string;
-    onSave: (quantity: number, purchase_price: number, acquired_date: string) => void;
+    onSave: (entry_id: string, quantity: number, purchase_price_usd: number, purchase_price_jpy: number | null, acquired_date: string, condition: 'PSA10' | 'RAW') => void;
     onDelete: () => void;
 }) {
+    const { convertPrice, convertInput } = useExchangeRate();
     const [isEditing, setIsEditing] = useState(false);
     const [quantity, setQuantity] = useState(entry.quantity);
+    const [condition, setCondition] = useState<'PSA10' | 'RAW'>(entry.condition);
 
-    // Initial price conversion based on language
-    const initialPrice = language === 'ja'
-        ? entry.purchase_price
-        : Math.round(entry.purchase_price / EXCHANGE_RATE);
+    // Initial price for display
+    const getInitialPrice = () => {
+        if (language === 'ja') {
+            return entry.purchase_price_jpy ?? convertInput(entry.purchase_price_usd);
+        }
+        return entry.purchase_price_usd;
+    };
 
-    const [purchasePrice, setPurchasePrice] = useState(initialPrice.toString());
+    const [purchasePrice, setPurchasePrice] = useState(getInitialPrice().toString());
     const [acquiredDate, setAcquiredDate] = useState<Date | undefined>(
         entry.acquired_date ? new Date(entry.acquired_date) : undefined
     );
@@ -213,16 +230,27 @@ function HoldingEntryCard({
     const handleSave = async () => {
         setSaving(true);
 
-        let priceToSave = parseFloat(purchasePrice) || 0;
-        // Convert back to JPY if saving in USD/English mode
-        if (language !== 'ja') {
-            priceToSave = Math.round(priceToSave * EXCHANGE_RATE);
+        const inputValue = parseFloat(purchasePrice) || 0;
+        let priceUsd = 0;
+        let priceJpy = null;
+
+        if (language === 'ja') {
+            // Input is in JPY
+            priceJpy = inputValue;
+            priceUsd = convertPrice(inputValue); // JPY -> USD
+        } else {
+            // Input is in USD
+            priceUsd = inputValue;
+            priceJpy = convertInput(inputValue); // USD -> JPY (approx)
         }
 
         await onSave(
+            entry.entry_id,
             quantity,
-            priceToSave,
-            acquiredDate?.toISOString() || entry.acquired_date
+            priceUsd,
+            priceJpy,
+            acquiredDate?.toISOString() || entry.acquired_date,
+            condition
         );
         setSaving(false);
         setIsEditing(false);
@@ -230,31 +258,43 @@ function HoldingEntryCard({
 
     const handleCancel = () => {
         setQuantity(entry.quantity);
-        // Reset price based on current language
-        const resetPrice = language === 'ja'
-            ? entry.purchase_price
-            : Math.round(entry.purchase_price / EXCHANGE_RATE);
-        setPurchasePrice(resetPrice.toString());
+        setCondition(entry.condition);
+        setPurchasePrice(getInitialPrice().toString());
         setAcquiredDate(entry.acquired_date ? new Date(entry.acquired_date) : undefined);
         setIsEditing(false);
     };
 
-    const formatDisplayDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return format(date, dateFormat, { locale });
+    const displayPrice = () => {
+        if (language === 'ja') {
+            const price = entry.purchase_price_jpy ?? convertInput(entry.purchase_price_usd);
+            return `¥${price.toLocaleString()}`;
+        }
+        return `$${entry.purchase_price_usd.toLocaleString()}`;
     };
 
     return (
         <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-            {/* Header with Edit Button */}
-            <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-slate-500">
-                    {formatDisplayDate(entry.acquired_date)}
-                </span>
+            {/* Header: Date & Edit Button */}
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                    {isEditing ? (
+                        <div className="bg-slate-700 border border-slate-600 rounded px-2 py-1">
+                            <DatePicker
+                                value={acquiredDate}
+                                onChange={setAcquiredDate}
+                            />
+                        </div>
+                    ) : (
+                        <span className="text-[10px] text-slate-500">
+                            {entry.acquired_date ? format(new Date(entry.acquired_date), dateFormat, { locale }) : '-'}
+                        </span>
+                    )}
+                </div>
+
                 {!isEditing && (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300"
+                        className="flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 transition-colors"
                     >
                         <Pencil size={10} />
                         {t.edit}
@@ -266,9 +306,20 @@ function HoldingEntryCard({
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] text-slate-500">{t.condition}</span>
-                    <span className="px-1.5 py-0.5 bg-slate-700 text-slate-300 text-[10px] font-medium rounded">
-                        {entry.condition === 'PSA10' ? 'PSA10' : 'Raw (Mint)'}
-                    </span>
+                    {isEditing ? (
+                        <select
+                            value={condition}
+                            onChange={(e) => setCondition(e.target.value as 'PSA10' | 'RAW')}
+                            className="bg-slate-700 border border-slate-600 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none focus:border-amber-500/50"
+                        >
+                            <option value="RAW">Raw</option>
+                            <option value="PSA10">PSA10</option>
+                        </select>
+                    ) : (
+                        <span className="px-1.5 py-0.5 bg-slate-700 text-slate-300 text-[10px] font-medium rounded">
+                            {entry.condition === 'PSA10' ? 'PSA10' : 'Raw'}
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] text-slate-500">{t.quantity}</span>
@@ -305,52 +356,36 @@ function HoldingEntryCard({
                             inputMode="numeric"
                             value={purchasePrice}
                             onChange={(e) => setPurchasePrice(e.target.value.replace(/[^0-9.]/g, ''))}
-                            className="w-20 bg-slate-700 border border-slate-600 rounded px-2 py-1 text-xs text-white text-right focus:outline-none focus:border-amber-500/50"
+                            className="w-24 bg-slate-700 border border-slate-600 rounded px-2 py-1 text-xs text-white text-right focus:outline-none focus:border-amber-500/50"
                         />
                     </div>
                 ) : (
                     <span className="text-xs font-semibold text-white">
-                        {language === 'ja'
-                            ? `¥${entry.purchase_price.toLocaleString()}`
-                            : `$${Math.round(entry.purchase_price / EXCHANGE_RATE).toLocaleString()}`
-                        }
+                        {displayPrice()}
                     </span>
                 )}
             </div>
-
-            {/* Purchase Date (Editing Mode) */}
-            {isEditing && (
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] text-slate-500">{t.purchaseDate}</span>
-                    <div className="bg-slate-700 border border-slate-600 rounded px-2 py-1">
-                        <DatePicker
-                            value={acquiredDate}
-                            onChange={setAcquiredDate}
-                        />
-                    </div>
-                </div>
-            )}
 
             {/* Action Buttons */}
             {isEditing && (
                 <div className="flex items-center gap-2 mt-3">
                     <button
                         onClick={onDelete}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 bg-red-500/20 text-red-400 text-xs font-semibold rounded-lg hover:bg-red-500/30 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-red-500/20 text-red-400 text-xs font-semibold rounded-lg hover:bg-red-500/30 transition-colors"
                     >
                         <Trash2 size={12} />
                         {t.delete}
                     </button>
                     <button
                         onClick={handleCancel}
-                        className="flex-1 py-2 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-600 transition-colors"
+                        className="flex-1 py-1.5 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-600 transition-colors"
                     >
                         {t.cancel}
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 bg-amber-500 text-slate-950 text-xs font-bold rounded-lg hover:bg-amber-400 transition-colors disabled:opacity-50"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-amber-500 text-slate-950 text-xs font-bold rounded-lg hover:bg-amber-400 transition-colors disabled:opacity-50"
                     >
                         <Save size={12} />
                         {saving ? '...' : t.save}

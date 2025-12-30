@@ -63,14 +63,14 @@ export function TopPerformers({ cards }: TopPerformersProps) {
                     <p className="text-sm text-slate-400 mb-4 px-4">
                         {user
                             ? (language === 'ja'
-                                ? 'ポートフォリオにカードが登録されていません。保有カードを登録して値動きを確認しましょう！'
+                                ? 'ポートフォリオにカードが登録されていません。コレクションを登録して値動きを確認しましょう！'
                                 : 'No cards in your portfolio. Add cards to track their performance!')
                             : (language === 'ja'
-                                ? 'ポートフォリオにカードが登録されていません。無料会員登録で保有カードの値動きを確認しましょう！'
+                                ? 'ポートフォリオにカードが登録されていません。無料会員登録でコレクションの値動きを確認しましょう！'
                                 : 'No cards in your portfolio. Sign up for free to track your card values!')}
                     </p>
                     <Link
-                        href={user ? '/search' : '/auth'}
+                        href={user ? '/search' : '/login?mode=signup'}
                         className="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-lg transition-colors"
                     >
                         {user

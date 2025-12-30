@@ -5,6 +5,7 @@ import { SearchFilters } from '@/components/SearchFilters';
 import { CardList } from '@/components/CardList';
 import { SearchPageTitle, SearchResultsHeader, SearchEmptyState } from '@/components/SearchPageClient';
 import { getSupabaseServer } from '@/lib/supabase';
+import { ForceScrollToTop } from '@/components/ForceScrollToTop';
 
 export const metadata: Metadata = {
     title: 'Search - Find One Piece Cards',
@@ -37,6 +38,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
     return (
         <div className="px-4 py-6 max-w-7xl mx-auto">
+            <ForceScrollToTop />
             {/* Header */}
             <section className="mb-6">
                 <SearchPageTitle />

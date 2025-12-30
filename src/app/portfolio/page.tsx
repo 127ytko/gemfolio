@@ -29,7 +29,8 @@ interface HoldingItem {
         acquired_date: string;
         condition: 'PSA10' | 'RAW';
         quantity: number;
-        purchase_price: number;
+        purchase_price_usd: number;
+        purchase_price_jpy: number | null;
     }[];
 }
 
@@ -114,14 +115,15 @@ function VaultPageContent() {
                     }
 
                     groupedHoldings[cardId].quantity += entry.quantity;
-                    groupedHoldings[cardId].cost += entry.purchase_price * entry.quantity;
+                    groupedHoldings[cardId].cost += entry.purchase_price_usd * entry.quantity;
                     groupedHoldings[cardId].current_value += currentPrice * entry.quantity;
                     groupedHoldings[cardId].entries.push({
                         entry_id: entry.id,
                         acquired_date: entry.purchase_date || entry.created_at,
                         condition: entry.condition as 'PSA10' | 'RAW',
                         quantity: entry.quantity,
-                        purchase_price: entry.purchase_price,
+                        purchase_price_usd: entry.purchase_price_usd,
+                        purchase_price_jpy: entry.purchase_price_jpy,
                     });
                 }
 
@@ -164,7 +166,7 @@ function VaultPageContent() {
                     </h2>
                     <p className="text-sm text-slate-400 mb-6 max-w-sm mx-auto px-4">
                         {language === 'ja'
-                            ? '無料会員登録で、保有カードの価格変動をリアルタイムでトラッキングできます。'
+                            ? '無料会員登録で、コレクションの価格変動をリアルタイムでトラッキングできます。'
                             : 'Sign up for free to track your card collection value in real-time.'}
                     </p>
                     <Link
@@ -224,7 +226,7 @@ function VaultPageContent() {
                     {/* Holdings Section */}
                     <section className="mb-6">
                         <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-sm font-semibold text-slate-400">{language === 'ja' ? '保有カード' : 'Collections'}</h2>
+                            <h2 className="text-sm font-semibold text-slate-400">{language === 'ja' ? 'コレクション' : 'Collections'}</h2>
                             <Link
                                 href="/search"
                                 className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg text-slate-900 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all"

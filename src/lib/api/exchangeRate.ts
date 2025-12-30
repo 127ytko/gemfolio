@@ -6,12 +6,13 @@ export interface ExchangeRate {
 }
 
 // Default fallback rate if API fails
-const DEFAULT_RATE = 155;
+export const DEFAULT_RATE = 155;
 
 /**
  * Get latest USD to JPY exchange rate
+ * Returns null if fetch fails
  */
-export async function getLatestExchangeRate(): Promise<number> {
+export async function getLatestExchangeRate(): Promise<number | null> {
     const supabase = getSupabaseClient();
 
     try {
@@ -25,14 +26,14 @@ export async function getLatestExchangeRate(): Promise<number> {
             .single();
 
         if (error) {
-            console.warn('Error fetching exchange rate, using default:', error);
-            return DEFAULT_RATE;
+            console.warn('Error fetching exchange rate:', error);
+            return null;
         }
 
         const record = data as { rate: number } | null;
-        return record?.rate ?? DEFAULT_RATE;
+        return record?.rate ?? null;
     } catch (err) {
         console.error('Failed to fetch exchange rate:', err);
-        return DEFAULT_RATE;
+        return null; // Return null on error to let caller handle fallback
     }
 }

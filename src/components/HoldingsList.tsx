@@ -5,13 +5,15 @@ import { Search, ChevronDown, X } from 'lucide-react';
 import { EditHoldingModal } from './EditHoldingModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { useExchangeRate } from '@/context/ExchangeRateContext';
+import { updatePortfolioEntry, deletePortfolioEntry } from '@/lib/api/portfolio';
 
 interface HoldingEntry {
     entry_id: string;
     acquired_date: string;
     condition: 'PSA10' | 'RAW';
     quantity: number;
-    purchase_price: number;
+    purchase_price_usd: number;
+    purchase_price_jpy: number | null;
 }
 
 interface HoldingItem {
@@ -55,12 +57,12 @@ export function HoldingsList({ holdings, initialEditCardId }: HoldingsListProps)
     }, [initialEditCardId, holdings]);
 
     const t = {
-        searchPlaceholder: language === 'ja' ? '保有カードを検索...' : 'Search holdings...',
+        searchPlaceholder: language === 'ja' ? 'コレクションを検索...' : 'Search collections...',
         date: language === 'ja' ? '日付' : 'Date',
         value: language === 'ja' ? '評価額' : 'Value',
         profit: language === 'ja' ? '損益' : 'Profit',
         noMatch: language === 'ja' ? '該当するカードがありません' : 'No cards match your search',
-        noHoldings: language === 'ja' ? '保有カードがありません' : 'No holdings yet',
+        noHoldings: language === 'ja' ? 'コレクションがありません' : 'No holdings yet',
     };
 
     const SORT_OPTIONS = [
@@ -96,15 +98,36 @@ export function HoldingsList({ holdings, initialEditCardId }: HoldingsListProps)
         return result;
     }, [holdings, searchQuery, sortBy, language]);
 
-    const handleSaveEntry = (entry_id: string, quantity: number, purchase_price: number) => {
-        console.log('Save entry:', { entry_id, quantity, purchase_price });
-        // TODO: API call to update entry
+
+
+    const handleSaveEntry = async (entry_id: string, quantity: number, purchase_price_usd: number, purchase_price_jpy: number | null, acquired_date: string, condition: 'PSA10' | 'RAW') => {
+        try {
+            await updatePortfolioEntry(entry_id, {
+                quantity,
+                purchase_price_usd,
+                purchase_price_jpy,
+                purchase_date: acquired_date,
+                condition
+            });
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to update entry:', error);
+            alert(language === 'ja' ? '更新に失敗しました' : 'Failed to update entry');
+        }
     };
 
-    const handleDeleteEntry = (entry_id: string) => {
-        console.log('Delete entry:', entry_id);
-        // TODO: API call to delete entry
-        setSelectedCard(null);
+    const handleDeleteEntry = async (entry_id: string) => {
+        if (!confirm(language === 'ja' ? '本当にこのエントリーを削除しますか？' : 'Are you sure you want to delete this entry?')) {
+            return;
+        }
+
+        try {
+            await deletePortfolioEntry(entry_id);
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to delete entry:', error);
+            alert(language === 'ja' ? '削除に失敗しました' : 'Failed to delete entry');
+        }
     };
 
     return (
@@ -172,6 +195,7 @@ export function HoldingsList({ holdings, initialEditCardId }: HoldingsListProps)
                     onClose={() => setSelectedCard(null)}
                     card={{
                         card_id: selectedCard.card_id,
+                        slug: selectedCard.slug,
                         name_en: selectedCard.name_en,
                         name_ja: selectedCard.name_ja,
                         card_number: selectedCard.card_number,
@@ -204,7 +228,7 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
     const profitPercent = item.cost > 0 ? (profit / item.cost) * 100 : 0;
     const isPositive = profit >= 0;
     const { language } = useLanguage();
-    const { convertPrice } = useExchangeRate();
+    const { convertPrice, convertInput } = useExchangeRate();
 
     const cardName = language === 'ja' ? (item.name_ja || item.name_en) : item.name_en;
     const setName = language === 'ja' ? (item.set_name_ja || item.set_name_en) : item.set_name_en;
@@ -256,8 +280,8 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
                         <span className="text-[9px] text-slate-500">{t.value}</span>
                         <span className="text-sm font-bold text-amber-400">
                             {language === 'ja'
-                                ? `¥${item.current_value.toLocaleString()}`
-                                : `$${convertPrice(item.current_value).toLocaleString()}`
+                                ? `¥${Math.round(convertInput(item.current_value)).toLocaleString()}`
+                                : `$${item.current_value.toLocaleString()}`
                             }
                         </span>
                     </div>
@@ -274,8 +298,8 @@ function HoldingListItem({ item, onClick }: HoldingItemDisplayProps) {
                     <span className={`text-[10px] font-semibold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                         {isPositive ? '+' : '-'}
                         {language === 'ja'
-                            ? `¥${Math.abs(profit).toLocaleString()}`
-                            : `$${convertPrice(Math.abs(profit)).toLocaleString()}`
+                            ? `¥${Math.round(convertInput(Math.abs(profit))).toLocaleString()}`
+                            : `$${Math.abs(profit).toLocaleString()}`
                         }
                         {' '}({isPositive ? '+' : ''}{profitPercent.toFixed(0)}%)
                     </span>

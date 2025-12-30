@@ -90,18 +90,28 @@ export function AddToPortfolioForm({ cardId, cardName, defaultPrice = 0 }: AddTo
         setError(null);
 
         try {
-            let priceToSave = parseFloat(parseCommaNumber(purchasePrice));
+            const inputValue = parseFloat(parseCommaNumber(purchasePrice));
+            let priceUsd = 0;
+            let priceJpy = 0;
 
-            // If input is in USD, convert to JPY for storage
-            if (language !== 'ja') {
-                priceToSave = convertInput(priceToSave);
+            if (language === 'ja') {
+                // Input is in JPY
+                priceJpy = inputValue;
+                // Convert JPY to USD for storage
+                priceUsd = convertInput(inputValue);
+            } else {
+                // Input is in USD
+                priceUsd = inputValue;
+                // Convert USD to JPY for storage
+                priceJpy = convertPrice(inputValue);
             }
 
             await addToPortfolio({
                 card_id: cardId,
                 condition,
                 quantity,
-                purchase_price: priceToSave,
+                purchase_price_usd: priceUsd,
+                purchase_price_jpy: priceJpy,
                 purchase_date: purchaseDate?.toISOString().split('T')[0] || null,
             });
 

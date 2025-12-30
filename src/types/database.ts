@@ -58,6 +58,13 @@ export interface Card {
     price_raw_change_weekly: number | null;     // Raw price change %
     price_psa10_change_weekly: number | null;   // PSA10 price change %
 
+    // eBay Data
+    price_ebay_raw: number | null;
+    price_ebay_psa10: number | null;
+    ebay_listing_url_raw: string | null;
+    ebay_listing_url_psa10: string | null;
+    last_ebay_scraped_at: string | null;
+
     // Timestamps
     updated_at: string;                 // ISO timestamp
     created_at: string;                 // ISO timestamp
@@ -136,7 +143,8 @@ export interface Portfolio {
     card_id: string;                    // Foreign Key to cards
     condition: CardCondition;           // Card condition
     quantity: number;                   // Number of cards owned
-    purchase_price: number;             // User's purchase price (USD)
+    purchase_price_usd: number;         // User's purchase price (USD)
+    purchase_price_jpy: number | null;  // User's purchase price (JPY)
     purchase_date: string | null;       // Purchase date (ISO date)
     created_at: string;                 // ISO timestamp
     updated_at: string;                 // ISO timestamp
@@ -170,7 +178,8 @@ export interface PortfolioEntry {
     image_url: string | null;
     condition: CardCondition;
     quantity: number;
-    purchase_price: number;
+    purchase_price_usd: number;
+    purchase_price_jpy: number | null;
     purchase_date: string | null;
     current_price: number;              // Current market price based on condition
     profit: number;                     // Current value - purchase price
