@@ -72,8 +72,8 @@ export function CardTile({ card, priority = false }: CardTileProps) {
                             </div>
                             {priceDiffPercent !== null && (
                                 <span className={`px-2 py-0.5 text-xs font-bold rounded ${isHotDeal
-                                        ? 'bg-green-500/20 text-green-400 price-badge-hot'
-                                        : 'bg-slate-700 text-slate-300'
+                                    ? 'bg-green-500/20 text-green-400 price-badge-hot'
+                                    : 'bg-slate-700 text-slate-300'
                                     }`}>
                                     {priceDiffPercent > 0 ? '+' : ''}{priceDiffPercent}%
                                 </span>
@@ -87,7 +87,11 @@ export function CardTile({ card, priority = false }: CardTileProps) {
             {card.ebayLink && (
                 <div className="px-3 pb-3">
                     <a
-                        href={card.ebayLink}
+                        href={(() => {
+                            const AFFILIATE_PARAMS = 'mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio';
+                            const separator = card.ebayLink!.includes('?') ? '&' : '?';
+                            return `${card.ebayLink}${separator}${AFFILIATE_PARAMS}`;
+                        })()}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-1.5 w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition-colors active:scale-[0.98]"

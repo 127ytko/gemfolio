@@ -138,11 +138,17 @@ export function CardDetailClient({
             {/* eBay CTA */}
             <div className="px-4 pb-8">
                 <a
-                    href={
-                        card.ebay_listing_url_psa10 ||
-                        card.ebay_listing_url_raw ||
-                        `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.rarity_en || '') + ' Japanese')}&_sacat=183454&LH_BIN=1&_sop=15&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio`
-                    }
+                    href={(() => {
+                        const AFFILIATE_PARAMS = 'mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339135615&toolid=10001&customid=gemfolio';
+                        const baseUrl = card.ebay_listing_url_psa10 || card.ebay_listing_url_raw;
+                        if (baseUrl) {
+                            // Ensure affiliate params are always present
+                            const separator = baseUrl.includes('?') ? '&' : '?';
+                            return `${baseUrl}${separator}${AFFILIATE_PARAMS}`;
+                        }
+                        // Fallback to search URL
+                        return `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(card.card_number + ' ' + (card.rarity_en || '') + ' Japanese')}&_sacat=183454&LH_BIN=1&_sop=15&${AFFILIATE_PARAMS}`;
+                    })()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-colors active:scale-[0.98]"

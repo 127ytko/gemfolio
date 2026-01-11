@@ -57,6 +57,31 @@ interface Card {
 // Helper: Sleep
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper: Append affiliate parameters to any eBay URL
+function appendAffiliateParams(url: string): string {
+    try {
+        const urlObj = new URL(url);
+        // Remove existing affiliate params if any
+        urlObj.searchParams.delete('mkcid');
+        urlObj.searchParams.delete('mkrid');
+        urlObj.searchParams.delete('siteid');
+        urlObj.searchParams.delete('campid');
+        urlObj.searchParams.delete('toolid');
+        urlObj.searchParams.delete('customid');
+        // Add our affiliate params
+        urlObj.searchParams.set('mkcid', '1');
+        urlObj.searchParams.set('mkrid', '711-53200-19255-0');
+        urlObj.searchParams.set('siteid', '0');
+        urlObj.searchParams.set('campid', AFFILIATE_CAMP_ID);
+        urlObj.searchParams.set('toolid', '10001');
+        urlObj.searchParams.set('customid', AFFILIATE_CUSTOM_ID);
+        return urlObj.toString();
+    } catch {
+        // If URL parsing fails, return original
+        return url;
+    }
+}
+
 // Helper: Get eBay Access Token
 async function getAccessToken(): Promise<string | null> {
     const credentials = Buffer.from(`${EBAY_APP_ID}:${EBAY_CERT_ID}`).toString('base64');
@@ -151,7 +176,9 @@ async function fetchSingleEbayPrice(
             }
 
             // Found valid item
-            const itemUrl = item.itemAffiliateWebUrl || item.itemWebUrl;
+            const baseUrl = item.itemAffiliateWebUrl || item.itemWebUrl;
+            // Ensure affiliate parameters are always present
+            const itemUrl = appendAffiliateParams(baseUrl);
             return { priceUsd, priceYen, url: itemUrl };
         }
 
