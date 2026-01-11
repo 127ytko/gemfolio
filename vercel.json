@@ -3,6 +3,26 @@
         {
             "path": "/api/cron/scrape-prices",
             "schedule": "0 1 * * *"
+        },
+        {
+            "path": "/api/cron/scrape-prices",
+            "schedule": "5 1 * * *"
+        },
+        {
+            "path": "/api/cron/scrape-prices",
+            "schedule": "10 1 * * *"
+        },
+        {
+            "path": "/api/cron/scrape-prices",
+            "schedule": "15 1 * * *"
+        },
+        {
+            "path": "/api/cron/scrape-prices",
+            "schedule": "20 1 * * *"
+        },
+        {
+            "path": "/api/cron/scrape-prices",
+            "schedule": "25 1 * * *"
         }
     ]
 }
