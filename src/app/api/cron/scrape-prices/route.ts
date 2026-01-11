@@ -21,7 +21,7 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 15;
 
 // 固定User-Agent
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
@@ -32,7 +32,7 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 async function fetchHtml(url: string): Promise<string | null> {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
         const response = await fetch(url, {
             signal: controller.signal,
